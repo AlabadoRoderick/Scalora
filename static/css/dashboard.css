@@ -1,0 +1,336 @@
+/* ===================================================
+   SCALORA Dashboard CSS
+   =================================================== */
+
+:root {
+  --sidebar-width: 260px;
+  --topbar-height: 64px;
+  --sidebar-bg: #0c1936;
+  --sidebar-hover: rgba(201,179,126,0.08);
+  --sidebar-active: rgba(201,179,126,0.14);
+  --sidebar-text: rgba(255,255,255,0.55);
+  --sidebar-text-active: #ffffff;
+  --topbar-bg: rgba(255,255,255,0.97);
+}
+
+/* ── Layout ── */
+.dashboard-body {
+  background: #f0f2f8;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  overflow-x: hidden;
+}
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.dashboard-sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-right: 1px solid rgba(201,179,126,0.1);
+  transition: transform 0.3s ease;
+}
+
+.sidebar-brand {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.brand-link {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  overflow-y: auto;
+}
+
+.sidebar-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 0.75rem 0.75rem 0.4rem;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
+}
+
+.sidebar-link i {
+  font-size: 1.05rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-link:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+}
+
+.sidebar-link.active {
+  background: var(--sidebar-active);
+  color: #fff;
+  border-left: 3px solid #c9b37e;
+}
+
+.sidebar-link.active i { color: #c9b37e; }
+
+.sidebar-logout { color: rgba(239,68,68,0.6) !important; }
+.sidebar-logout:hover { background: rgba(239,68,68,0.1) !important; color: #ef4444 !important; }
+
+.sidebar-footer {
+  padding: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+/* ── Main ── */
+.dashboard-main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 0;
+}
+
+/* ── Topbar ── */
+.dashboard-topbar {
+  height: var(--topbar-height);
+  background: var(--topbar-bg);
+  border-bottom: 1px solid rgba(27,54,115,0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 12px rgba(15,30,64,0.06);
+}
+
+.sidebar-toggle {
+  background: none;
+  border: 1px solid rgba(27,54,115,0.12);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 1.2rem;
+  color: #1B3673;
+  cursor: pointer;
+  display: none;
+  transition: all 0.2s;
+}
+.sidebar-toggle:hover { background: rgba(27,54,115,0.06); }
+
+.topbar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0F1E40;
+  flex: 1;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1B3673;
+}
+
+/* ── Content ── */
+.dashboard-content {
+  padding: 2rem 1.75rem;
+  flex: 1;
+}
+
+/* ── Welcome ── */
+.dash-welcome h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  color: #0F1E40;
+}
+
+/* ── Section Titles ── */
+.dash-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: #0F1E40;
+  font-weight: 700;
+}
+
+/* ── Stat Cards ── */
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.5rem;
+  background: #fff !important;
+  border-radius: 14px;
+  border: 1px solid rgba(27,54,115,0.08) !important;
+  box-shadow: 0 2px 12px rgba(15,30,64,0.06) !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(15,30,64,0.12) !important;
+}
+
+.stat-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.stat-card-icon.bg-primary { background: linear-gradient(135deg, #1B3673, #4A5D8A); }
+.stat-card-icon.bg-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.stat-card-icon.bg-success { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-card-icon.bg-info    { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+.stat-card-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0F1E40;
+  line-height: 1;
+}
+
+.stat-card-label {
+  font-size: 0.8rem;
+  color: #8C92AC;
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+/* ── Tables ── */
+.scalora-table {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.scalora-table thead tr th {
+  background: rgba(27,54,115,0.04);
+  color: #4A5D8A;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(27,54,115,0.08);
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+}
+
+.scalora-table tbody tr td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(27,54,115,0.05);
+  vertical-align: middle;
+  color: #374151;
+}
+
+.scalora-table tbody tr:hover td {
+  background: rgba(27,54,115,0.025);
+}
+
+.scalora-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Glass card override for dashboard ── */
+.dashboard-content .glass-card {
+  background: #fff !important;
+  border: 1px solid rgba(27,54,115,0.08) !important;
+  box-shadow: 0 2px 16px rgba(15,30,64,0.06) !important;
+  border-radius: 14px;
+}
+
+.dashboard-content .glass-card:hover {
+  transform: none;
+  box-shadow: 0 4px 24px rgba(15,30,64,0.1) !important;
+}
+
+/* ── Responsive ── */
+@media (max-width: 991px) {
+  .sidebar-toggle { display: flex; }
+
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+  }
+  .dashboard-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 30px rgba(0,0,0,0.3);
+  }
+
+  .dashboard-main {
+    margin-left: 0;
+  }
+
+  .dashboard-content {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .topbar-title { font-size: 1rem; }
+  .stat-card-val { font-size: 1.6rem; }
+}
