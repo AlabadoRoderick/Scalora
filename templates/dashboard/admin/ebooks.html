@@ -1,0 +1,389 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}eBooks & Orders – Scalora Admin{% endblock %}
+{% block page_title %}eBook Store Management{% endblock %}
+
+{% block content %}
+<style>
+/* ── eBooks & Orders Admin ── */
+
+.eb-page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;
+}
+.eb-page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 700; color: #0F1E40; margin: 0 0 .2rem;
+}
+.eb-page-sub { font-size: .82rem; color: #8C92AC; margin: 0; }
+.eb-add-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff !important; border: none; border-radius: 11px;
+  font-size: .82rem; font-weight: 700; padding: .6rem 1.25rem;
+  text-decoration: none; transition: all .2s;
+  box-shadow: 0 3px 12px rgba(27,54,115,.25);
+}
+.eb-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,54,115,.35); }
+
+/* ── Stats row ── */
+.eb-stats-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+.eb-stat {
+  flex: 1; min-width: 130px;
+  background: #fff; border: 1px solid rgba(27,54,115,.09);
+  border-radius: 14px; padding: 1.1rem 1.3rem;
+  box-shadow: 0 1px 8px rgba(15,30,64,.05);
+  display: flex; align-items: center; gap: .85rem;
+}
+.eb-stat-ic {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.eb-stat-ic.c-blue  { background: rgba(27,54,115,.1);  color: #1B3673; }
+.eb-stat-ic.c-gold  { background: rgba(201,179,126,.15); color: #a8913e; }
+.eb-stat-ic.c-green { background: rgba(16,185,129,.1);  color: #059669; }
+.eb-stat-ic.c-warn  { background: rgba(245,158,11,.1);  color: #d97706; }
+.eb-stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: #0F1E40; line-height: 1; }
+.eb-stat-lbl { font-size: .71rem; color: #8C92AC; font-weight: 600; margin-top: .15rem; }
+
+/* ── Section panels ── */
+.eb-panel {
+  background: #fff; border: 1px solid rgba(27,54,115,.08);
+  border-radius: 18px; box-shadow: 0 2px 16px rgba(15,30,64,.05); overflow: hidden;
+  margin-bottom: 2rem;
+}
+.eb-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.07);
+  flex-wrap: wrap; gap: .75rem;
+}
+.eb-panel-title {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .45rem;
+}
+.eb-panel-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #c9b37e; flex-shrink: 0; }
+
+/* ── eBook grid cards ── */
+.eb-book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; padding: 1.25rem 1.5rem; }
+.eb-book-card {
+  background: rgba(27,54,115,.025); border: 1px solid rgba(27,54,115,.09);
+  border-radius: 14px; overflow: hidden; transition: all .22s;
+}
+.eb-book-card:hover { border-color: rgba(201,179,126,.3); box-shadow: 0 6px 20px rgba(15,30,64,.1); transform: translateY(-3px); }
+.eb-book-cover {
+  height: 110px; background: linear-gradient(145deg, #0F1E40, #1B3673);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; color: rgba(201,179,126,.35); position: relative;
+}
+.eb-book-cover img { width: 100%; height: 100%; object-fit: cover; }
+.eb-book-status-dot {
+  position: absolute; top: .6rem; right: .6rem;
+  width: 9px; height: 9px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3);
+}
+.dot-active   { background: #10b981; }
+.dot-inactive { background: #8C92AC; }
+.eb-book-body { padding: .9rem 1rem; }
+.eb-book-title { font-weight: 700; font-size: .84rem; color: #0F1E40; margin-bottom: .3rem; line-height: 1.3; }
+.eb-book-author { font-size: .73rem; color: #8C92AC; display: flex; align-items: center; gap: .3rem; }
+.eb-book-meta { display: flex; align-items: center; justify-content: space-between; margin-top: .65rem; }
+.eb-book-price { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #c9b37e; }
+.eb-book-actions { display: flex; gap: .4rem; }
+.eb-book-btn {
+  width: 28px; height: 28px; border-radius: 7px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: .8rem; transition: all .18s;
+  text-decoration: none;
+}
+.eb-book-btn.edit { background: rgba(27,54,115,.08); color: #1B3673; }
+.eb-book-btn.edit:hover { background: #1B3673; color: #fff; }
+
+/* ── Orders filter bar ── */
+.ord-filter-bar {
+  display: flex; gap: .4rem; flex-wrap: wrap;
+  background: rgba(27,54,115,.03); border-radius: 10px; padding: .3rem;
+  width: fit-content;
+}
+.ord-tab {
+  padding: .35rem .85rem; border-radius: 8px;
+  font-size: .75rem; font-weight: 700; text-decoration: none; color: #8C92AC;
+  transition: all .18s; border: 1.5px solid transparent; white-space: nowrap;
+  background: none; cursor: pointer;
+}
+.ord-tab:hover { color: #1B3673; background: rgba(27,54,115,.06); }
+.ord-tab.active { background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff; box-shadow: 0 3px 10px rgba(27,54,115,.25); }
+.ord-tab.act-pend { background: linear-gradient(135deg,#d97706,#b45309); }
+.ord-tab.act-conf { background: linear-gradient(135deg,#059669,#047857); }
+.ord-tab.act-delv { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
+
+/* ── Orders table ── */
+.ord-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.ord-table thead th {
+  font-size: .68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: #8C92AC; padding: .8rem 1.25rem; border-bottom: 1px solid rgba(27,54,115,.07); white-space: nowrap;
+}
+.ord-table tbody td {
+  padding: .9rem 1.25rem; font-size: .83rem; color: #374151;
+  border-bottom: 1px solid rgba(27,54,115,.05); vertical-align: middle;
+}
+.ord-table tbody tr:last-child td { border-bottom: none; }
+.ord-table tbody tr:hover td { background: rgba(27,54,115,.018); }
+
+/* Client cell */
+.cli-cell { display: flex; align-items: center; gap: .65rem; }
+.cli-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; font-weight: 700; flex-shrink: 0;
+}
+.cli-name { font-weight: 700; color: #0F1E40; font-size: .82rem; }
+.cli-email { font-size: .7rem; color: #8C92AC; }
+
+/* Order ID */
+.ord-id { font-size: .72rem; font-weight: 700; color: #c9b37e; background: rgba(201,179,126,.1); border-radius: 6px; padding: .2rem .55rem; font-family: monospace; }
+
+/* Status badges */
+.ord-badge { display: inline-flex; align-items: center; gap: .3rem; font-size: .7rem; font-weight: 700; padding: .28rem .75rem; border-radius: 50px; }
+.ord-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+.ord-badge.s-pending   { background: rgba(245,158,11,.12);  color: #92400e; }
+.ord-badge.s-pending   .ord-badge-dot { background: #f59e0b; }
+.ord-badge.s-confirmed { background: rgba(16,185,129,.12);  color: #065f46; }
+.ord-badge.s-confirmed .ord-badge-dot { background: #10b981; }
+.ord-badge.s-delivered { background: rgba(59,130,246,.12);  color: #1e40af; }
+.ord-badge.s-delivered .ord-badge-dot { background: #3b82f6; }
+.ord-badge.s-cancelled { background: rgba(239,68,68,.1);    color: #7f1d1d; }
+.ord-badge.s-cancelled .ord-badge-dot { background: #ef4444; }
+
+/* Action form */
+.ord-action-form { display: flex; align-items: center; gap: .45rem; flex-wrap: nowrap; }
+.ord-status-sel {
+  background: rgba(27,54,115,.04) !important; border: 1.5px solid rgba(27,54,115,.12) !important;
+  border-radius: 9px !important; font-size: .76rem !important; font-weight: 600 !important;
+  color: #1B3673 !important; padding: .36rem .6rem !important; width: 126px; cursor: pointer;
+  transition: border-color .18s; font-family: 'DM Sans', sans-serif;
+}
+.ord-status-sel:focus { border-color: #c9b37e !important; box-shadow: 0 0 0 3px rgba(201,179,126,.15) !important; outline: none; }
+.ord-txn-input {
+  background: rgba(27,54,115,.03); border: 1.5px solid rgba(27,54,115,.11);
+  border-radius: 9px; font-size: .75rem; color: #374151;
+  padding: .36rem .6rem; width: 88px; font-family: 'DM Sans', sans-serif;
+  transition: border-color .18s; outline: none;
+}
+.ord-txn-input:focus { border-color: #c9b37e; box-shadow: 0 0 0 3px rgba(201,179,126,.12); }
+.ord-save-btn {
+  background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff;
+  border: none; border-radius: 9px; font-size: .75rem; font-weight: 700;
+  padding: .38rem .85rem; cursor: pointer; transition: all .18s; white-space: nowrap;
+}
+.ord-save-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,54,115,.3); }
+.ord-receipt-btn {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(201,179,126,.1); border: none; color: #a8913e;
+  display: flex; align-items: center; justify-content: center; font-size: .88rem;
+  text-decoration: none; transition: all .18s; cursor: pointer;
+}
+.ord-receipt-btn:hover { background: #c9b37e; color: #0F1E40; }
+
+/* Empty */
+.eb-empty { text-align: center; padding: 2.5rem 1rem; }
+.eb-empty i { font-size: 2rem; color: rgba(27,54,115,.18); display: block; margin-bottom: .5rem; }
+.eb-empty p { font-size: .83rem; color: #8C92AC; margin: 0; }
+
+/* Hidden rows for filter */
+.ord-row.hidden { display: none !important; }
+</style>
+
+<!-- Page header -->
+<div class="eb-page-header">
+  <div>
+    <h1 class="eb-page-title">eBook Store</h1>
+    <p class="eb-page-sub">Manage your eBook catalog and process customer orders</p>
+  </div>
+  <a href="/ebooks/add/" class="eb-add-btn"><i class="bi bi-plus-lg"></i> Add eBook</a>
+</div>
+
+<!-- Summary stats -->
+<div class="eb-stats-row">
+  <div class="eb-stat">
+    <div class="eb-stat-ic c-blue"><i class="bi bi-book-fill"></i></div>
+    <div><div class="eb-stat-val">{{ ebooks|length }}</div><div class="eb-stat-lbl">Total eBooks</div></div>
+  </div>
+  <div class="eb-stat">
+    <div class="eb-stat-ic c-gold"><i class="bi bi-bag-fill"></i></div>
+    <div><div class="eb-stat-val">{{ orders|length }}</div><div class="eb-stat-lbl">Total Orders</div></div>
+  </div>
+  <div class="eb-stat">
+    <div class="eb-stat-ic c-warn"><i class="bi bi-clock-history"></i></div>
+    <div>
+      <div class="eb-stat-val">{% with cnt=0 %}{% for o in orders %}{% if o.status == 'pending' %}{% with cnt=cnt|add:1 %}{% endwith %}{% endif %}{% endfor %}{{ orders|length }}{% endwith %}</div>
+      <div class="eb-stat-lbl">Pending Orders</div>
+    </div>
+  </div>
+  <div class="eb-stat">
+    <div class="eb-stat-ic c-green"><i class="bi bi-patch-check-fill"></i></div>
+    <div><div class="eb-stat-val">—</div><div class="eb-stat-lbl">Delivered</div></div>
+  </div>
+</div>
+
+<!-- ── eBooks Panel ── -->
+<div class="eb-panel">
+  <div class="eb-panel-header">
+    <div class="eb-panel-title">eBook Catalog</div>
+    <a href="/ebooks/" target="_blank" style="font-size:.75rem;color:#8C92AC;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+      <i class="bi bi-box-arrow-up-right"></i> View Store
+    </a>
+  </div>
+
+  {% if ebooks %}
+  <div class="eb-book-grid">
+    {% for e in ebooks %}
+    <div class="eb-book-card">
+      <div class="eb-book-cover">
+        {% if e.cover_image %}
+          <img src="{{ e.cover_image.url }}" alt="{{ e.title }}">
+        {% else %}
+          <i class="bi bi-book-half"></i>
+        {% endif %}
+        <div class="eb-book-status-dot {% if e.is_active %}dot-active{% else %}dot-inactive{% endif %}"></div>
+      </div>
+      <div class="eb-book-body">
+        <div class="eb-book-title">{{ e.title|truncatechars:36 }}</div>
+        <div class="eb-book-author"><i class="bi bi-person" style="color:#c9b37e;"></i>{{ e.author }}</div>
+        {% if e.category %}
+        <div style="margin-top:.35rem;">
+          <span style="font-size:.65rem;font-weight:700;background:rgba(27,54,115,.07);color:#1B3673;border-radius:5px;padding:.15rem .5rem;">{{ e.category }}</span>
+        </div>
+        {% endif %}
+        <div class="eb-book-meta">
+          <div class="eb-book-price">${{ e.price }}</div>
+          <div class="eb-book-actions">
+            <a href="/ebooks/{{ e.pk }}/edit/" class="eb-book-btn edit" title="Edit"><i class="bi bi-pencil-fill"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="eb-empty">
+    <i class="bi bi-book"></i>
+    <p>No eBooks yet. <a href="/ebooks/add/" style="color:#1B3673;font-weight:700;">Add your first eBook →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Orders Panel ── -->
+<div class="eb-panel">
+  <div class="eb-panel-header">
+    <div class="eb-panel-title">Customer Orders</div>
+    <!-- Filter tabs -->
+    <div class="ord-filter-bar" id="ordFilters">
+      <button class="ord-tab active" data-filter="all">All Orders</button>
+      <button class="ord-tab" data-filter="pending">Pending</button>
+      <button class="ord-tab" data-filter="confirmed">Confirmed</button>
+      <button class="ord-tab" data-filter="delivered">Delivered</button>
+      <button class="ord-tab" data-filter="cancelled">Cancelled</button>
+    </div>
+  </div>
+
+  {% if orders %}
+  <div class="table-responsive">
+    <table class="ord-table">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Client</th>
+          <th>eBook</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Update</th>
+        </tr>
+      </thead>
+      <tbody id="ordTableBody">
+      {% for o in orders %}
+      <tr class="ord-row" data-status="{{ o.status }}">
+        <td>
+          <div><span class="ord-id">#{{ o.pk }}</span></div>
+          <div style="font-size:.7rem;color:#8C92AC;margin-top:.25rem;">{{ o.ordered_at|date:"M j, Y" }}</div>
+        </td>
+        <td>
+          <div class="cli-cell">
+            <div class="cli-av">{{ o.client.first_name|first|upper|default:o.client.username|first|upper }}</div>
+            <div>
+              <div class="cli-name">{{ o.client.get_full_name|default:o.client.username }}</div>
+              <div class="cli-email">{{ o.client.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div style="font-weight:600;font-size:.82rem;color:#0F1E40;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ o.ebook.title|truncatechars:30 }}</div>
+          {% if o.ebook.category %}<div style="font-size:.7rem;color:#8C92AC;">{{ o.ebook.category }}</div>{% endif %}
+        </td>
+        <td style="font-weight:700;color:#0F1E40;">{{ o.quantity }}</td>
+        <td>
+          <span style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:#c9b37e;">${{ o.total_price }}</span>
+        </td>
+        <td>
+          <span class="ord-badge s-{{ o.status }}">
+            <span class="ord-badge-dot"></span>{{ o.get_status_display }}
+          </span>
+          {% if o.transaction_id %}
+          <div style="font-size:.68rem;color:#8C92AC;margin-top:.3rem;font-family:monospace;">{{ o.transaction_id }}</div>
+          {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="/ebooks/order/{{ o.pk }}/status/" class="ord-action-form">
+            {% csrf_token %}
+            <select name="status" class="ord-status-sel">
+              <option value="pending"   {% if o.status == 'pending'   %}selected{% endif %}>Pending</option>
+              <option value="confirmed" {% if o.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+              <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>Delivered</option>
+              <option value="cancelled" {% if o.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <input type="text" name="transaction_id" class="ord-txn-input"
+                   placeholder="Txn ID" value="{{ o.transaction_id }}">
+            <button type="submit" class="ord-save-btn"><i class="bi bi-check2 me-1"></i>Save</button>
+            <a href="/ebooks/order/{{ o.pk }}/receipt/" class="ord-receipt-btn" title="Receipt">
+              <i class="bi bi-receipt"></i>
+            </a>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="eb-empty" style="padding:3rem 1rem;">
+    <i class="bi bi-bag-x"></i>
+    <p>No orders yet. Orders will appear here once clients start purchasing eBooks.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const tabs = document.querySelectorAll('#ordFilters .ord-tab');
+  const rows = document.querySelectorAll('.ord-row');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('active','act-pend','act-conf','act-delv');
+      });
+      tab.classList.add('active');
+      const f = tab.dataset.filter;
+      if (f === 'pending')   tab.classList.add('act-pend');
+      if (f === 'confirmed') tab.classList.add('act-conf');
+      if (f === 'delivered') tab.classList.add('act-delv');
+
+      rows.forEach(row => {
+        row.classList.toggle('hidden', f !== 'all' && row.dataset.status !== f);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

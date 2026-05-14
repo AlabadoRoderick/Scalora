@@ -1,0 +1,299 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Careers – Scalora Admin{% endblock %}
+{% block page_title %}Careers Management{% endblock %}
+
+{% block content %}
+<style>
+/* ── Careers Admin ── */
+.cr-page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;
+}
+.cr-page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 700; color: #0F1E40; margin: 0 0 .2rem;
+}
+.cr-page-sub { font-size: .82rem; color: #8C92AC; margin: 0; }
+.cr-add-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff !important; border: none; border-radius: 11px;
+  font-size: .82rem; font-weight: 700; padding: .6rem 1.25rem;
+  text-decoration: none; transition: all .2s;
+  box-shadow: 0 3px 12px rgba(27,54,115,.25);
+}
+.cr-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,54,115,.35); }
+
+/* Stats row */
+.cr-stats-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+.cr-stat {
+  flex: 1; min-width: 130px; background: #fff;
+  border: 1px solid rgba(27,54,115,.09); border-radius: 14px;
+  padding: 1.1rem 1.3rem; box-shadow: 0 1px 8px rgba(15,30,64,.05);
+  display: flex; align-items: center; gap: .85rem;
+}
+.cr-stat-ic {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.cr-stat-ic.c-blue  { background: rgba(27,54,115,.1);  color: #1B3673; }
+.cr-stat-ic.c-green { background: rgba(16,185,129,.1);  color: #059669; }
+.cr-stat-ic.c-gold  { background: rgba(201,179,126,.15); color: #a8913e; }
+.cr-stat-ic.c-sky   { background: rgba(59,130,246,.1);  color: #2563eb; }
+.cr-stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: #0F1E40; line-height: 1; }
+.cr-stat-lbl { font-size: .71rem; color: #8C92AC; font-weight: 600; margin-top: .15rem; }
+
+/* Filter + panel */
+.cr-panel {
+  background: #fff; border: 1px solid rgba(27,54,115,.08);
+  border-radius: 18px; box-shadow: 0 2px 16px rgba(15,30,64,.05); overflow: hidden;
+}
+.cr-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.07);
+  flex-wrap: wrap; gap: .75rem;
+}
+.cr-panel-title {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .45rem;
+}
+.cr-panel-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #c9b37e; flex-shrink: 0; }
+
+/* Filter tabs */
+.cr-filter-bar {
+  display: flex; gap: .4rem; flex-wrap: wrap;
+  background: rgba(27,54,115,.03); border-radius: 10px; padding: .3rem;
+  width: fit-content;
+}
+.cr-tab {
+  padding: .33rem .85rem; border-radius: 8px;
+  font-size: .74rem; font-weight: 700; color: #8C92AC;
+  transition: all .18s; border: none; background: none; cursor: pointer;
+}
+.cr-tab:hover { color: #1B3673; background: rgba(27,54,115,.06); }
+.cr-tab.active { background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff; box-shadow: 0 3px 10px rgba(27,54,115,.25); }
+.cr-tab.act-active { background: linear-gradient(135deg, #059669, #047857); }
+.cr-tab.act-inactive { background: linear-gradient(135deg, #8C92AC, #6b7280); }
+
+/* Job cards grid */
+.cr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; padding: 1.25rem 1.5rem; }
+.cr-job-card {
+  background: rgba(27,54,115,.025); border: 1px solid rgba(27,54,115,.09);
+  border-radius: 14px; padding: 1.4rem; transition: all .22s;
+  display: flex; flex-direction: column; gap: .9rem; position: relative;
+}
+.cr-job-card:hover { border-color: rgba(201,179,126,.3); box-shadow: 0 6px 22px rgba(15,30,64,.1); transform: translateY(-3px); }
+.cr-job-card.inactive { opacity: .65; }
+
+/* Card top */
+.cr-job-top { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
+.cr-job-icon-wrap {
+  width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(27,54,115,.08), rgba(201,179,126,.1));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: #1B3673; transition: all .22s;
+}
+.cr-job-card:hover .cr-job-icon-wrap { background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff; }
+.cr-job-badges { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; }
+.cr-status-badge {
+  font-size: .62rem; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+  padding: .2rem .6rem; border-radius: 6px;
+}
+.cr-status-badge.active   { background: rgba(16,185,129,.12); color: #065f46; }
+.cr-status-badge.inactive { background: rgba(140,146,172,.12); color: #4b5563; }
+.cr-type-badge {
+  font-size: .65rem; font-weight: 700;
+  padding: .18rem .55rem; border-radius: 6px;
+  background: rgba(27,54,115,.07); color: #4A5D8A;
+}
+
+/* Card body */
+.cr-job-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; color: #0F1E40; line-height: 1.3; margin: 0; }
+.cr-job-dept  { font-size: .74rem; color: #8C92AC; margin-top: .15rem; display: flex; align-items: center; gap: .3rem; }
+.cr-job-dept i { color: #c9b37e; }
+
+/* Meta chips */
+.cr-job-meta { display: flex; gap: .5rem; flex-wrap: wrap; }
+.cr-meta-chip {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: #fff; border: 1px solid rgba(27,54,115,.1);
+  border-radius: 7px; padding: .25rem .65rem;
+  font-size: .72rem; font-weight: 600; color: #4A5D8A;
+}
+.cr-meta-chip i { color: #c9b37e; font-size: .78rem; }
+
+/* Salary */
+.cr-salary { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 700; color: #c9b37e; }
+
+/* Card footer */
+.cr-job-foot { display: flex; align-items: center; justify-content: space-between; padding-top: .85rem; border-top: 1px solid rgba(27,54,115,.06); }
+.cr-job-date { font-size: .7rem; color: #8C92AC; display: flex; align-items: center; gap: .3rem; }
+.cr-job-actions { display: flex; gap: .4rem; }
+.cr-job-btn {
+  height: 30px; border-radius: 8px; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .35rem;
+  font-size: .75rem; font-weight: 700; padding: 0 .75rem;
+  text-decoration: none; transition: all .18s;
+}
+.cr-job-btn.view { background: rgba(27,54,115,.07); color: #1B3673; }
+.cr-job-btn.view:hover { background: #1B3673; color: #fff; }
+.cr-job-btn.del { background: rgba(239,68,68,.08); color: #dc2626; }
+.cr-job-btn.del:hover { background: #dc2626; color: #fff; }
+
+/* Hidden for filter */
+.cr-job-col.hidden { display: none !important; }
+
+/* Empty */
+.cr-empty { text-align: center; padding: 3.5rem 1rem; }
+.cr-empty-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: rgba(27,54,115,.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; color: rgba(27,54,115,.2);
+  margin: 0 auto 1rem;
+}
+.cr-empty h5 { font-family: 'Playfair Display', serif; color: #0F1E40; margin-bottom: .35rem; }
+.cr-empty p  { font-size: .85rem; color: #8C92AC; margin: 0; }
+</style>
+
+<!-- Page header -->
+<div class="cr-page-header">
+  <div>
+    <h1 class="cr-page-title">Careers</h1>
+    <p class="cr-page-sub">Manage open positions and attract top talent to Scalora</p>
+  </div>
+  <a href="/careers/add/" class="cr-add-btn"><i class="bi bi-plus-lg"></i> Post a Job</a>
+</div>
+
+<!-- Stats -->
+<div class="cr-stats-row">
+  <div class="cr-stat">
+    <div class="cr-stat-ic c-blue"><i class="bi bi-briefcase-fill"></i></div>
+    <div><div class="cr-stat-val">{{ jobs|length }}</div><div class="cr-stat-lbl">Total Postings</div></div>
+  </div>
+  <div class="cr-stat">
+    <div class="cr-stat-ic c-green"><i class="bi bi-check-circle-fill"></i></div>
+    <div>
+      <div class="cr-stat-val">{% for j in jobs %}{% if j.is_active %}{% with x=forloop.counter %}{% endwith %}{% endif %}{% endfor %}{% with active_count=jobs|length %}{{ active_count }}{% endwith %}</div>
+      <div class="cr-stat-lbl">Active Roles</div>
+    </div>
+  </div>
+  <div class="cr-stat">
+    <div class="cr-stat-ic c-gold"><i class="bi bi-globe"></i></div>
+    <div><div class="cr-stat-val">Remote</div><div class="cr-stat-lbl">Primary Location</div></div>
+  </div>
+  <div class="cr-stat">
+    <div class="cr-stat-ic c-sky"><i class="bi bi-people-fill"></i></div>
+    <div><div class="cr-stat-val">—</div><div class="cr-stat-lbl">Applications</div></div>
+  </div>
+</div>
+
+<!-- Panel -->
+<div class="cr-panel">
+  <div class="cr-panel-header">
+    <div class="cr-panel-title">Job Postings</div>
+    <div class="cr-filter-bar" id="crFilters">
+      <button class="cr-tab active" data-filter="all">All</button>
+      <button class="cr-tab" data-filter="active">Active</button>
+      <button class="cr-tab" data-filter="inactive">Inactive</button>
+      <button class="cr-tab" data-filter="full-time">Full-Time</button>
+      <button class="cr-tab" data-filter="remote">Remote</button>
+      <button class="cr-tab" data-filter="contract">Contract</button>
+    </div>
+  </div>
+
+  {% if jobs %}
+  <div class="cr-grid" id="crGrid">
+    {% for j in jobs %}
+    <div class="cr-job-col {% if not j.is_active %}inactive-card{% endif %}"
+         data-status="{% if j.is_active %}active{% else %}inactive{% endif %}"
+         data-type="{{ j.job_type }}">
+      <div class="cr-job-card {% if not j.is_active %}inactive{% endif %}">
+
+        <!-- Top -->
+        <div class="cr-job-top">
+          <div class="cr-job-icon-wrap">
+            <i class="bi bi-briefcase"></i>
+          </div>
+          <div class="cr-job-badges">
+            <span class="cr-status-badge {% if j.is_active %}active{% else %}inactive{% endif %}">
+              {% if j.is_active %}● Active{% else %}○ Inactive{% endif %}
+            </span>
+            <span class="cr-type-badge">{{ j.get_job_type_display }}</span>
+          </div>
+        </div>
+
+        <!-- Title + dept -->
+        <div>
+          <h6 class="cr-job-title">{{ j.title }}</h6>
+          {% if j.department %}
+          <div class="cr-job-dept"><i class="bi bi-building"></i>{{ j.department }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Meta chips -->
+        <div class="cr-job-meta">
+          <span class="cr-meta-chip"><i class="bi bi-geo-alt-fill"></i>{{ j.location }}</span>
+          <span class="cr-meta-chip"><i class="bi bi-clock-fill"></i>{{ j.get_job_type_display }}</span>
+          {% if j.salary_range %}
+          <span class="cr-meta-chip"><i class="bi bi-cash-coin"></i>{{ j.salary_range }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="cr-job-foot">
+          <div class="cr-job-date">
+            <i class="bi bi-calendar3"></i>{{ j.created_at|date:"M j, Y" }}
+          </div>
+          <div class="cr-job-actions">
+            <a href="/careers/{{ j.pk }}/" target="_blank" class="cr-job-btn view">
+              <i class="bi bi-eye"></i> View
+            </a>
+            <a href="/careers/{{ j.pk }}/delete/" class="cr-job-btn del">
+              <i class="bi bi-trash3"></i> Delete
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="cr-empty">
+    <div class="cr-empty-icon"><i class="bi bi-briefcase"></i></div>
+    <h5>No job postings yet</h5>
+    <p><a href="/careers/add/" style="color:#1B3673;font-weight:700;">Post your first role →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const tabs = document.querySelectorAll('#crFilters .cr-tab');
+  const cols = document.querySelectorAll('#crGrid .cr-job-col');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active', 'act-active', 'act-inactive'));
+      tab.classList.add('active');
+      const f = tab.dataset.filter;
+      if (f === 'active')   tab.classList.add('act-active');
+      if (f === 'inactive') tab.classList.add('act-inactive');
+
+      cols.forEach(col => {
+        let show = false;
+        if (f === 'all')                         show = true;
+        else if (f === 'active' || f === 'inactive') show = col.dataset.status === f;
+        else                                         show = col.dataset.type === f;
+        col.classList.toggle('hidden', !show);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

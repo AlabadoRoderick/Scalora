@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% block title %}My Profile – Scalora{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Profile Page ── */
+.profile-hero {
+  background: linear-gradient(135deg, #0F1E40 0%, #1B3673 60%, #2a4a8a 100%);
+  padding: 8rem 0 6rem;
+  position: relative; overflow: hidden;
+}
+.profile-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9b37e' fill-opacity='.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+}
+.profile-hero-orb {
+  position: absolute; top: -60px; right: -60px;
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(201,179,126,.1) 0%, transparent 65%);
+  border-radius: 50%; pointer-events: none;
+}
+
+/* Avatar preview area */
+.profile-avatar-section {
+  display: flex; align-items: center; gap: 1.75rem;
+  position: relative; z-index: 1;
+}
+.profile-avatar-wrap {
+  position: relative; flex-shrink: 0;
+}
+.profile-avatar-img {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, #4A5D8A, #1B3673);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700; color: #fff;
+  border: 3px solid rgba(201,179,126,.4);
+  overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.3);
+}
+.profile-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+.profile-avatar-change {
+  position: absolute; bottom: 0; right: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #c9b37e; color: #0F1E40; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; cursor: pointer; transition: all .2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.profile-avatar-change:hover { background: #a8913e; transform: scale(1.1); }
+.profile-hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem; font-weight: 700; color: #fff; margin: 0 0 .3rem; line-height: 1.2;
+}
+.profile-hero-text .hero-sub { color: rgba(255,255,255,.55); font-size: .88rem; }
+.profile-role-badge {
+  display: inline-flex; align-items: center; gap: .4rem; margin-top: .5rem;
+  background: rgba(201,179,126,.12); border: 1px solid rgba(201,179,126,.28);
+  border-radius: 50px; padding: .25rem .8rem;
+  font-size: .68rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #c9b37e;
+}
+
+/* ── Main layout ── */
+.profile-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; padding: 2.5rem 0 4rem; }
+@media (max-width: 991px) { .profile-layout { grid-template-columns: 1fr; } }
+
+/* ── Form card ── */
+.pf-card {
+  background: #fff; border: 1px solid rgba(27,54,115,.09);
+  border-radius: 20px; box-shadow: 0 2px 20px rgba(15,30,64,.07); overflow: hidden;
+}
+.pf-card-header {
+  padding: 1.15rem 1.6rem; border-bottom: 1px solid rgba(27,54,115,.07);
+  display: flex; align-items: center; gap: .5rem;
+}
+.pf-card-title {
+  font-family: 'Playfair Display', serif; font-size: .98rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .45rem;
+}
+.pf-card-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #c9b37e; }
+.pf-card-body { padding: 1.6rem; }
+
+/* ── Field styles ── */
+.pf-field { margin-bottom: 1.25rem; }
+.pf-label {
+  font-size: .78rem; font-weight: 700; color: #1B3673;
+  margin-bottom: .42rem; display: flex; align-items: center; gap: .35rem;
+}
+.pf-label i { color: #c9b37e; font-size: .82rem; }
+.pf-input {
+  width: 100%; background: rgba(27,54,115,.03);
+  border: 1.5px solid rgba(27,54,115,.12); border-radius: 11px;
+  padding: .7rem 1rem; font-size: .88rem;
+  font-family: 'DM Sans', sans-serif; color: #0F1E40;
+  outline: none; transition: all .2s;
+}
+.pf-input:focus { border-color: #c9b37e; box-shadow: 0 0 0 3px rgba(201,179,126,.15); background: #fff; }
+textarea.pf-input { resize: vertical; min-height: 100px; line-height: 1.65; }
+
+/* File upload area */
+.pf-upload-area {
+  border: 2px dashed rgba(27,54,115,.18); border-radius: 12px;
+  padding: 1.4rem; text-align: center; cursor: pointer;
+  transition: all .22s; background: rgba(27,54,115,.02);
+  position: relative;
+}
+.pf-upload-area:hover { border-color: #c9b37e; background: rgba(201,179,126,.04); }
+.pf-upload-area input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.pf-upload-icon { font-size: 1.8rem; color: rgba(27,54,115,.25); margin-bottom: .4rem; }
+.pf-upload-text { font-size: .82rem; color: #8C92AC; font-weight: 500; }
+.pf-upload-hint { font-size: .72rem; color: #c9b37e; margin-top: .2rem; font-weight: 600; }
+
+/* ── Form actions ── */
+.pf-actions { display: flex; gap: .75rem; flex-wrap: wrap; padding-top: .5rem; }
+.pf-save-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff !important; border: none; border-radius: 11px;
+  font-size: .85rem; font-weight: 700; padding: .7rem 1.6rem;
+  cursor: pointer; transition: all .2s;
+  box-shadow: 0 3px 14px rgba(27,54,115,.28);
+}
+.pf-save-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(27,54,115,.38); }
+.pf-cancel-btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: rgba(27,54,115,.06); color: #4A5D8A !important;
+  border: 1.5px solid rgba(27,54,115,.14); border-radius: 11px;
+  font-size: .85rem; font-weight: 700; padding: .7rem 1.4rem;
+  text-decoration: none; transition: all .2s;
+}
+.pf-cancel-btn:hover { background: rgba(27,54,115,.11); color: #1B3673 !important; }
+
+/* ── Sidebar cards ── */
+.pf-side-card {
+  background: #fff; border: 1px solid rgba(27,54,115,.09);
+  border-radius: 18px; box-shadow: 0 2px 14px rgba(15,30,64,.06);
+  overflow: hidden; margin-bottom: 1.25rem;
+}
+.pf-side-header {
+  padding: 1rem 1.3rem; border-bottom: 1px solid rgba(27,54,115,.07);
+}
+.pf-side-title {
+  font-family: 'Playfair Display', serif; font-size: .88rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .4rem;
+}
+.pf-side-title::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #c9b37e; }
+.pf-side-body { padding: 1.1rem 1.3rem; }
+
+/* Activity / quick links */
+.pf-quick-link {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .65rem .75rem; border-radius: 10px;
+  text-decoration: none; transition: all .18s; margin-bottom: .3rem;
+}
+.pf-quick-link:hover { background: rgba(27,54,115,.05); }
+.pf-ql-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: .9rem;
+}
+.pf-ql-icon.c-blue  { background: rgba(27,54,115,.09);  color: #1B3673; }
+.pf-ql-icon.c-gold  { background: rgba(201,179,126,.14); color: #a8913e; }
+.pf-ql-icon.c-green { background: rgba(16,185,129,.1);   color: #059669; }
+.pf-ql-text { font-size: .82rem; font-weight: 600; color: #374151; }
+.pf-ql-sub  { font-size: .7rem; color: #8C92AC; }
+.pf-ql-arrow { margin-left: auto; color: #8C92AC; font-size: .8rem; }
+
+/* Security tip card */
+.pf-tip {
+  background: linear-gradient(135deg, rgba(27,54,115,.04), rgba(201,179,126,.06));
+  border: 1px solid rgba(201,179,126,.2); border-radius: 12px;
+  padding: 1rem 1.1rem; display: flex; gap: .75rem; align-items: flex-start;
+}
+.pf-tip-icon { font-size: 1.1rem; color: #c9b37e; flex-shrink: 0; margin-top: .1rem; }
+.pf-tip-text { font-size: .78rem; color: #5a6678; line-height: 1.6; }
+.pf-tip-text strong { color: #0F1E40; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Profile Hero ── -->
+<div class="profile-hero">
+  <div class="profile-hero-orb"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="profile-avatar-section">
+
+      <!-- Avatar -->
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-img" id="avatarPreviewWrap">
+          {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" alt="{{ request.user.get_full_name }}" id="avatarPreviewImg">
+          {% else %}
+            <span id="avatarInitial">{{ request.user.first_name|first|upper|default:request.user.username|first|upper }}</span>
+          {% endif %}
+        </div>
+        <label for="id_avatar" class="profile-avatar-change" title="Change photo">
+          <i class="bi bi-camera-fill"></i>
+        </label>
+      </div>
+
+      <!-- Name + role -->
+      <div class="profile-hero-text">
+        <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
+        <div class="hero-sub">{{ request.user.email }}</div>
+        <div class="profile-role-badge">
+          <i class="bi bi-shield-check"></i>
+          {% if request.user.is_staff %}Admin{% else %}Client{% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Profile Body ── -->
+<div class="container">
+  <div class="profile-layout">
+
+    <!-- ── Main form ── -->
+    <div>
+      <form method="POST" enctype="multipart/form-data" id="profileForm">
+        {% csrf_token %}
+
+        <!-- Personal info -->
+        <div class="pf-card mb-4">
+          <div class="pf-card-header">
+            <div class="pf-card-title">Personal Information</div>
+          </div>
+          <div class="pf-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="pf-field">
+                  <label class="pf-label"><i class="bi bi-person-fill"></i>First Name</label>
+                  <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                         class="pf-input" placeholder="Your first name">
+                  {% if form.first_name.errors %}<div style="font-size:.75rem;color:#dc2626;margin-top:.3rem;">{{ form.first_name.errors.0 }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="pf-field">
+                  <label class="pf-label"><i class="bi bi-person-fill"></i>Last Name</label>
+                  <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}"
+                         class="pf-input" placeholder="Your last name">
+                  {% if form.last_name.errors %}<div style="font-size:.75rem;color:#dc2626;margin-top:.3rem;">{{ form.last_name.errors.0 }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="pf-field">
+                  <label class="pf-label"><i class="bi bi-envelope-fill"></i>Email Address</label>
+                  <input type="email" name="email" value="{{ form.email.value|default:'' }}"
+                         class="pf-input" placeholder="you@example.com">
+                  {% if form.email.errors %}<div style="font-size:.75rem;color:#dc2626;margin-top:.3rem;">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="pf-field">
+                  <label class="pf-label"><i class="bi bi-telephone-fill"></i>Phone Number</label>
+                  <input type="text" name="phone" value="{{ form.phone.value|default:'' }}"
+                         class="pf-input" placeholder="+1 (555) 000-0000">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="pf-card mb-4">
+          <div class="pf-card-header">
+            <div class="pf-card-title">About You</div>
+          </div>
+          <div class="pf-card-body">
+            <div class="pf-field" style="margin-bottom:0;">
+              <label class="pf-label"><i class="bi bi-chat-text-fill"></i>Bio</label>
+              <textarea name="bio" class="pf-input"
+                        placeholder="Tell us a little about yourself or your business…">{{ form.bio.value|default:'' }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo upload -->
+        <div class="pf-card mb-4">
+          <div class="pf-card-header">
+            <div class="pf-card-title">Profile Photo</div>
+          </div>
+          <div class="pf-card-body">
+            <div class="pf-upload-area" id="uploadArea">
+              <input type="file" name="avatar" id="id_avatar" accept="image/*">
+              <div class="pf-upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+              <div class="pf-upload-text">Click to upload or drag & drop</div>
+              <div class="pf-upload-hint" id="uploadFileName">PNG, JPG up to 5MB</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="pf-actions">
+          <button type="submit" class="pf-save-btn">
+            <i class="bi bi-check2-circle"></i> Save Changes
+          </button>
+          <a href="/dashboard/" class="pf-cancel-btn">
+            <i class="bi bi-arrow-left"></i> Dashboard
+          </a>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- ── Sidebar ── -->
+    <div>
+
+      <!-- Quick links -->
+      <div class="pf-side-card">
+        <div class="pf-side-header">
+          <div class="pf-side-title">Quick Links</div>
+        </div>
+        <div class="pf-side-body">
+          <a href="/dashboard/" class="pf-quick-link">
+            <div class="pf-ql-icon c-blue"><i class="bi bi-speedometer2"></i></div>
+            <div><div class="pf-ql-text">Dashboard</div><div class="pf-ql-sub">Overview & stats</div></div>
+            <i class="bi bi-chevron-right pf-ql-arrow"></i>
+          </a>
+          <a href="/dashboard/client/bookings/" class="pf-quick-link">
+            <div class="pf-ql-icon c-gold"><i class="bi bi-calendar-check"></i></div>
+            <div><div class="pf-ql-text">My Bookings</div><div class="pf-ql-sub">View appointments</div></div>
+            <i class="bi bi-chevron-right pf-ql-arrow"></i>
+          </a>
+          <a href="/dashboard/client/orders/" class="pf-quick-link">
+            <div class="pf-ql-icon c-green"><i class="bi bi-bag-fill"></i></div>
+            <div><div class="pf-ql-text">My Orders</div><div class="pf-ql-sub">eBook purchases</div></div>
+            <i class="bi bi-chevron-right pf-ql-arrow"></i>
+          </a>
+          <a href="/bookings/book/" class="pf-quick-link">
+            <div class="pf-ql-icon c-blue"><i class="bi bi-calendar-plus"></i></div>
+            <div><div class="pf-ql-text">Book Appointment</div><div class="pf-ql-sub">Schedule a call</div></div>
+            <i class="bi bi-chevron-right pf-ql-arrow"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Account info -->
+      <div class="pf-side-card">
+        <div class="pf-side-header">
+          <div class="pf-side-title">Account Details</div>
+        </div>
+        <div class="pf-side-body">
+          <div style="display:flex;flex-direction:column;gap:.65rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;">
+              <span style="color:#8C92AC;font-weight:600;">Username</span>
+              <span style="color:#0F1E40;font-weight:700;">{{ request.user.username }}</span>
+            </div>
+            <div style="height:1px;background:rgba(27,54,115,.06);"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;">
+              <span style="color:#8C92AC;font-weight:600;">Role</span>
+              <span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(27,54,115,.07);color:#1B3673;border-radius:6px;padding:.18rem .6rem;font-size:.7rem;font-weight:700;">
+                {% if request.user.is_staff %}<i class="bi bi-shield-check"></i>Admin{% else %}<i class="bi bi-person-check"></i>Client{% endif %}
+              </span>
+            </div>
+            <div style="height:1px;background:rgba(27,54,115,.06);"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.8rem;">
+              <span style="color:#8C92AC;font-weight:600;">Member Since</span>
+              <span style="color:#0F1E40;font-weight:700;">{{ request.user.date_joined|date:"M Y" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security tip -->
+      <div class="pf-side-card">
+        <div class="pf-side-body">
+          <div class="pf-tip">
+            <i class="bi bi-shield-lock-fill pf-tip-icon"></i>
+            <div class="pf-tip-text">
+              <strong>Keep your account secure.</strong>
+              Use a strong password and never share your login credentials with anyone.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const fileInput    = document.getElementById('id_avatar');
+  const fileNameEl   = document.getElementById('uploadFileName');
+  const uploadArea   = document.getElementById('uploadArea');
+  const avatarWrap   = document.getElementById('avatarPreviewWrap');
+  const avatarInit   = document.getElementById('avatarInitial');
+
+  // Show filename + live preview on file select
+  fileInput.addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    fileNameEl.textContent = file.name;
+    uploadArea.style.borderColor = '#c9b37e';
+    uploadArea.style.background  = 'rgba(201,179,126,.05)';
+
+    // Live preview in hero avatar
+    const reader = new FileReader();
+    reader.onload = e => {
+      let img = avatarWrap.querySelector('img');
+      if (!img) {
+        img = document.createElement('img');
+        img.id = 'avatarPreviewImg';
+        if (avatarInit) avatarInit.style.display = 'none';
+        avatarWrap.appendChild(img);
+      }
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Drag & drop styling
+  uploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#c9b37e';
+    uploadArea.style.background  = 'rgba(201,179,126,.07)';
+  });
+  uploadArea.addEventListener('dragleave', () => {
+    uploadArea.style.borderColor = '';
+    uploadArea.style.background  = '';
+  });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    if (e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      fileInput.dispatchEvent(new Event('change'));
+    }
+  });
+})();
+</script>
+{% endblock %}

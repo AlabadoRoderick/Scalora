@@ -1,0 +1,297 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Blog Posts – Scalora Admin{% endblock %}
+{% block page_title %}Blog Management{% endblock %}
+
+{% block content %}
+<style>
+/* ── Blog Admin ── */
+.bl-page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;
+}
+.bl-page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 700; color: #0F1E40; margin: 0 0 .2rem;
+}
+.bl-page-sub { font-size: .82rem; color: #8C92AC; margin: 0; }
+.bl-add-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff !important; border: none; border-radius: 11px;
+  font-size: .82rem; font-weight: 700; padding: .6rem 1.25rem;
+  text-decoration: none; transition: all .2s;
+  box-shadow: 0 3px 12px rgba(27,54,115,.25);
+}
+.bl-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,54,115,.35); }
+
+/* Stats */
+.bl-stats-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+.bl-stat {
+  flex: 1; min-width: 130px; background: #fff;
+  border: 1px solid rgba(27,54,115,.09); border-radius: 14px;
+  padding: 1.1rem 1.3rem; box-shadow: 0 1px 8px rgba(15,30,64,.05);
+  display: flex; align-items: center; gap: .85rem;
+}
+.bl-stat-ic {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.bl-stat-ic.c-blue  { background: rgba(27,54,115,.1);  color: #1B3673; }
+.bl-stat-ic.c-green { background: rgba(16,185,129,.1);  color: #059669; }
+.bl-stat-ic.c-gold  { background: rgba(201,179,126,.15); color: #a8913e; }
+.bl-stat-ic.c-sky   { background: rgba(59,130,246,.1);  color: #2563eb; }
+.bl-stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: #0F1E40; line-height: 1; }
+.bl-stat-lbl { font-size: .71rem; color: #8C92AC; font-weight: 600; margin-top: .15rem; }
+
+/* Panel */
+.bl-panel {
+  background: #fff; border: 1px solid rgba(27,54,115,.08);
+  border-radius: 18px; box-shadow: 0 2px 16px rgba(15,30,64,.05); overflow: hidden;
+}
+.bl-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.07);
+  flex-wrap: wrap; gap: .75rem;
+}
+.bl-panel-title {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .45rem;
+}
+.bl-panel-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #c9b37e; flex-shrink: 0; }
+
+/* Search + filter toolbar */
+.bl-toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.bl-search-wrap { position: relative; }
+.bl-search-input {
+  background: rgba(27,54,115,.04); border: 1.5px solid rgba(27,54,115,.12);
+  border-radius: 10px; padding: .42rem .9rem .42rem 2.4rem;
+  font-size: .8rem; font-family: 'DM Sans', sans-serif; color: #0F1E40;
+  outline: none; transition: all .2s; width: 220px;
+}
+.bl-search-input::placeholder { color: #8C92AC; }
+.bl-search-input:focus { border-color: #c9b37e; box-shadow: 0 0 0 3px rgba(201,179,126,.12); width: 260px; }
+.bl-search-icon { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); color: #8C92AC; font-size: .82rem; pointer-events: none; }
+
+.bl-filter-bar { display: flex; gap: .35rem; flex-wrap: wrap; background: rgba(27,54,115,.03); border-radius: 9px; padding: .28rem; }
+.bl-tab {
+  padding: .3rem .8rem; border-radius: 7px; font-size: .73rem; font-weight: 700;
+  color: #8C92AC; border: none; background: none; cursor: pointer; transition: all .18s;
+}
+.bl-tab:hover { color: #1B3673; background: rgba(27,54,115,.06); }
+.bl-tab.active { background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff; box-shadow: 0 2px 8px rgba(27,54,115,.22); }
+.bl-tab.act-pub { background: linear-gradient(135deg, #059669, #047857); }
+.bl-tab.act-draft { background: linear-gradient(135deg, #8C92AC, #6b7280); }
+
+.bl-count { font-size: .75rem; color: #8C92AC; font-weight: 600; white-space: nowrap; }
+
+/* Blog post list */
+.bl-post-list { display: flex; flex-direction: column; }
+.bl-post-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.05);
+  transition: background .15s;
+}
+.bl-post-row:last-child { border-bottom: none; }
+.bl-post-row:hover { background: rgba(27,54,115,.018); }
+.bl-post-row.hidden { display: none !important; }
+
+/* Thumbnail */
+.bl-thumb {
+  width: 62px; height: 62px; border-radius: 10px; flex-shrink: 0; overflow: hidden;
+  background: linear-gradient(135deg, #0F1E40, #1B3673);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: rgba(201,179,126,.4);
+}
+.bl-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Post info */
+.bl-post-info { flex: 1; min-width: 0; }
+.bl-post-title {
+  font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 700;
+  color: #0F1E40; margin: 0 0 .25rem; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bl-post-meta { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+.bl-post-meta-item { display: flex; align-items: center; gap: .28rem; font-size: .72rem; color: #8C92AC; }
+.bl-post-meta-item i { color: #c9b37e; font-size: .76rem; }
+.bl-post-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .3rem; }
+.bl-tag { font-size: .62rem; font-weight: 700; background: rgba(27,54,115,.07); color: #4A5D8A; border-radius: 5px; padding: .12rem .45rem; }
+
+/* Status */
+.bl-status-badge { display: inline-flex; align-items: center; gap: .28rem; font-size: .7rem; font-weight: 700; padding: .25rem .7rem; border-radius: 50px; flex-shrink: 0; }
+.bl-status-badge.published { background: rgba(16,185,129,.12); color: #065f46; }
+.bl-status-badge.published .bl-badge-dot { background: #10b981; }
+.bl-status-badge.draft { background: rgba(140,146,172,.12); color: #4b5563; }
+.bl-status-badge.draft .bl-badge-dot { background: #8C92AC; }
+.bl-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+/* Actions */
+.bl-post-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+.bl-action-btn {
+  width: 32px; height: 32px; border-radius: 9px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: .84rem;
+  text-decoration: none; transition: all .18s;
+}
+.bl-action-btn.view  { background: rgba(27,54,115,.07); color: #1B3673; }
+.bl-action-btn.view:hover  { background: #1B3673; color: #fff; }
+.bl-action-btn.edit  { background: rgba(201,179,126,.12); color: #a8913e; }
+.bl-action-btn.edit:hover  { background: #c9b37e; color: #0F1E40; }
+.bl-action-btn.del   { background: rgba(239,68,68,.07); color: #dc2626; }
+.bl-action-btn.del:hover   { background: #dc2626; color: #fff; }
+
+/* Empty */
+.bl-empty { text-align: center; padding: 3.5rem 1rem; }
+.bl-empty-icon { width: 72px; height: 72px; border-radius: 20px; background: rgba(27,54,115,.05); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: rgba(27,54,115,.2); margin: 0 auto 1rem; }
+.bl-empty h5 { font-family: 'Playfair Display', serif; color: #0F1E40; margin-bottom: .35rem; }
+.bl-empty p  { font-size: .85rem; color: #8C92AC; margin: 0; }
+</style>
+
+<!-- Page header -->
+<div class="bl-page-header">
+  <div>
+    <h1 class="bl-page-title">Blog Posts</h1>
+    <p class="bl-page-sub">Create, manage and publish articles for your audience</p>
+  </div>
+  <a href="/blogs/add/" class="bl-add-btn"><i class="bi bi-plus-lg"></i> New Post</a>
+</div>
+
+<!-- Stats -->
+<div class="bl-stats-row">
+  <div class="bl-stat">
+    <div class="bl-stat-ic c-blue"><i class="bi bi-newspaper"></i></div>
+    <div><div class="bl-stat-val">{{ blogs|length }}</div><div class="bl-stat-lbl">Total Posts</div></div>
+  </div>
+  <div class="bl-stat">
+    <div class="bl-stat-ic c-green"><i class="bi bi-check-circle-fill"></i></div>
+    <div>
+      <div class="bl-stat-val">{{ blogs|length }}</div>
+      <div class="bl-stat-lbl">Published</div>
+    </div>
+  </div>
+  <div class="bl-stat">
+    <div class="bl-stat-ic c-gold"><i class="bi bi-pencil-fill"></i></div>
+    <div><div class="bl-stat-val">0</div><div class="bl-stat-lbl">Drafts</div></div>
+  </div>
+  <div class="bl-stat">
+    <div class="bl-stat-ic c-sky"><i class="bi bi-eye-fill"></i></div>
+    <div><div class="bl-stat-val">—</div><div class="bl-stat-lbl">Total Views</div></div>
+  </div>
+</div>
+
+<!-- Panel -->
+<div class="bl-panel">
+  <div class="bl-panel-header">
+    <div class="bl-panel-title">All Posts</div>
+    <div class="bl-toolbar">
+      <!-- Search -->
+      <div class="bl-search-wrap">
+        <i class="bi bi-search bl-search-icon"></i>
+        <input type="text" id="blSearch" class="bl-search-input" placeholder="Search posts…" autocomplete="off">
+      </div>
+      <!-- Filter tabs -->
+      <div class="bl-filter-bar" id="blFilters">
+        <button class="bl-tab active" data-filter="all">All</button>
+        <button class="bl-tab" data-filter="published">Published</button>
+        <button class="bl-tab" data-filter="draft">Drafts</button>
+      </div>
+      <span class="bl-count" id="blCount">{{ blogs|length }} post{{ blogs|length|pluralize }}</span>
+    </div>
+  </div>
+
+  {% if blogs %}
+  <div class="bl-post-list" id="blList">
+    {% for b in blogs %}
+    <div class="bl-post-row"
+         data-status="{% if b.is_published %}published{% else %}draft{% endif %}"
+         data-title="{{ b.title|lower }}"
+         data-author="{{ b.author.get_full_name|lower|default:b.author.username|lower }}">
+
+      <!-- Thumbnail -->
+      <div class="bl-thumb">
+        {% if b.image %}<img src="{{ b.image.url }}" alt="{{ b.title }}">
+        {% else %}<i class="bi bi-newspaper"></i>{% endif %}
+      </div>
+
+      <!-- Info -->
+      <div class="bl-post-info">
+        <div class="bl-post-title">{{ b.title }}</div>
+        <div class="bl-post-meta">
+          <span class="bl-post-meta-item"><i class="bi bi-person-fill"></i>{{ b.author.get_full_name|default:b.author.username }}</span>
+          <span class="bl-post-meta-item"><i class="bi bi-calendar3"></i>{{ b.created_at|date:"M j, Y" }}</span>
+          {% if b.tags %}
+          <span class="bl-post-meta-item"><i class="bi bi-tag-fill"></i>{{ b.tags|truncatechars:30 }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Status -->
+      <span class="bl-status-badge {% if b.is_published %}published{% else %}draft{% endif %}">
+        <span class="bl-badge-dot"></span>
+        {% if b.is_published %}Published{% else %}Draft{% endif %}
+      </span>
+
+      <!-- Actions -->
+      <div class="bl-post-actions">
+        <a href="/blogs/{{ b.slug }}/" target="_blank" class="bl-action-btn view" title="View post">
+          <i class="bi bi-eye"></i>
+        </a>
+        <a href="/blogs/{{ b.slug }}/edit/" class="bl-action-btn edit" title="Edit post">
+          <i class="bi bi-pencil-fill"></i>
+        </a>
+        <a href="/blogs/{{ b.slug }}/delete/" class="bl-action-btn del" title="Delete post">
+          <i class="bi bi-trash3-fill"></i>
+        </a>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="bl-empty">
+    <div class="bl-empty-icon"><i class="bi bi-newspaper"></i></div>
+    <h5>No blog posts yet</h5>
+    <p><a href="/blogs/add/" style="color:#1B3673;font-weight:700;">Write your first post →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const search  = document.getElementById('blSearch');
+  const tabs    = document.querySelectorAll('#blFilters .bl-tab');
+  const rows    = document.querySelectorAll('#blList .bl-post-row');
+  const countEl = document.getElementById('blCount');
+  let activeFilter = 'all';
+
+  function applyFilters() {
+    const q = (search.value || '').trim().toLowerCase();
+    let visible = 0;
+    rows.forEach(row => {
+      const matchFilter = activeFilter === 'all' || row.dataset.status === activeFilter;
+      const matchSearch = !q || row.dataset.title.includes(q) || row.dataset.author.includes(q);
+      const show = matchFilter && matchSearch;
+      row.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    countEl.textContent = visible + ' post' + (visible !== 1 ? 's' : '');
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active', 'act-pub', 'act-draft'));
+      tab.classList.add('active');
+      if (tab.dataset.filter === 'published') tab.classList.add('act-pub');
+      if (tab.dataset.filter === 'draft')     tab.classList.add('act-draft');
+      activeFilter = tab.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  search.addEventListener('input', applyFilters);
+})();
+</script>
+{% endblock %}

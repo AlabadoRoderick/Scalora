@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}About Scalora – Your Growth Partner{% endblock %}
+
+{% block content %}
+
+<!-- HERO / ABOUT -->
+<section class="about-hero py-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1 class="section-title">About <span class="text-gold">Scalora</span></h1>
+                <p class="section-subtitle">Where Structure Meets Freedom</p>
+
+                <p class="section-body mt-4">
+                    <strong>Scalora</strong> was founded with one clear mission — to help modern business owners find freedom in structure.
+                </p>
+
+                <p class="section-body">
+                    We believe success isn’t about doing more — it’s about doing <strong>what truly matters</strong>, beautifully and efficiently.
+                </p>
+
+                <p class="section-body">
+                    Behind the systems and strategy is <strong>Menchie Llagas</strong>, a seasoned entrepreneur and operations strategist with over a decade of experience across multiple industries.
+                </p>
+
+                <a href="/bookings/book/" class="btn scalora-btn-primary mt-4">
+                    Work With Scalora
+                </a>
+            </div>
+
+            <div class="col-lg-6">
+                <img src="{% static 'images/about-workspace.png' %}" class="img-fluid rounded-4 shadow" alt="Workspace">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- FOUNDER SECTION -->
+<section class="founder-section py-section text-white" style="background-color: #0F1E40;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-5">
+                <img src="{% static 'images/founder.jfif' %}" class="img-fluid rounded-4" alt="Founder">
+            </div>
+
+            <div class="col-lg-7">
+                <h2 class="section-title text-white">Meet the Founder</h2>
+                <h4 class="text-gold mt-2">Menchie Llagas</h4>
+                <p class="text-light opacity-75">Founder & Lead Virtual Partner</p>
+
+                <p class="mt-4">
+                    With <strong>10+ years of experience</strong>, Menchie combines business insight, creative strategy, and operational expertise.
+                </p>
+
+                <ul class="mt-3">
+                    <li>Built and managed multiple businesses from the ground up</li>
+                    <li>Expert in systems, operations, and scaling workflows</li>
+                    <li>Supports brands locally and internationally</li>
+                </ul>
+
+                <p class="mt-3 fst-italic">
+                    “I don’t just organize businesses — I build systems that give owners their time back.”
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- MISSION -->
+<section class="mission-section py-section text-center">
+    <div class="container">
+        <h2 class="section-title mb-5">Our Mission</h2>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <i class="bi bi-box-seam fs-2 text-gold"></i>
+                    <h5 class="mt-3">Empower Business Owners</h5>
+                    <ul class="mt-3 text-start">
+                        <li>Gain back time and clarity</li>
+                        <li>Build structured systems</li>
+                        <li>Create scalable workflows</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="glass-card p-4 h-100">
+                    <i class="bi bi-people fs-2 text-gold"></i>
+                    <h5 class="mt-3">Create Opportunities</h5>
+                    <ul class="mt-3 text-start">
+                        <li>Support Filipino professionals</li>
+                        <li>Enable meaningful work</li>
+                        <li>Deliver excellence globally</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- VISION -->
+<section class="vision-section py-section text-center bg-light">
+    <div class="container">
+        <h2 class="section-title">Our Vision</h2>
+
+        <p class="lead mt-4">
+            To become a globally trusted partner for scalable and structured business growth.
+        </p>
+
+        <p class="section-body mt-3">
+            We envision a world where entrepreneurs focus on what they do best — while systems handle the rest.
+        </p>
+    </div>
+</section>
+
+
+<section class="why-us-section py-section" style="background-color: #0F1E40;">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h2 class="section-title text-white">Why Choose <span class="text-gold">Scalora</span>?</h2>
+            <p class="section-subtitle">The difference between chaos and clarity</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- TRADITIONAL -->
+            <div class="col-lg-5">
+                <div class="compare-card compare-bad h-100">
+                    <h5 class="compare-title text-danger">Traditional Approach</h5>
+
+                    <ul class="compare-list">
+                        <li>❌ One-size-fits-all solutions</li>
+                        <li>❌ Scattered execution</li>
+                        <li>❌ No clear direction</li>
+                        <li>❌ You do everything alone</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SCALORA -->
+            <div class="col-lg-5">
+                <div class="compare-card compare-good h-100">
+                    <h5 class="compare-title text-success">Scalora Process</h5>
+
+                    <ul class="compare-list">
+                        <li>✔ Tailored systems for your business</li>
+                        <li>✔ Streamlined workflows</li>
+                        <li>✔ Clear strategy and execution</li>
+                        <li>✔ We handle the backend</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section py-section text-center">
+    <div class="container">
+        <h2 class="cta-headline">
+            Every successful business starts with the right systems
+        </h2>
+
+        <p class="cta-subtext mt-3">
+            Let’s design yours together.
+        </p>
+
+        <a href="/bookings/book/" class="btn scalora-btn-primary btn-lg mt-4">
+            Build Your System Today
+        </a>
+    </div>
+</section>
+
+{% endblock %}

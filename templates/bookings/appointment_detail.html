@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Appointment #{{ appointment.pk }} – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section">
+    <div class="container"><h1 class="page-title">Appointment <span class="text-gold">#{{ appointment.pk }}</span></h1></div>
+</div>
+<section class="py-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="glass-card p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4>{{ appointment.service.name }}</h4>
+                        <span class="badge status-badge-{{ appointment.status }}">{{ appointment.get_status_display }}</span>
+                    </div>
+                    <div class="detail-list">
+                        <div class="detail-row"><span class="detail-key">Client</span><span class="detail-val">{{ appointment.client.get_full_name|default:appointment.client.username }}</span></div>
+                        <div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">{{ appointment.date|date:"F j, Y" }}</span></div>
+                        <div class="detail-row"><span class="detail-key">Time</span><span class="detail-val">{{ appointment.time_slot|time:"g:i A" }} – {{ appointment.time_slot_end|time:"g:i A" }}</span></div>
+                        <div class="detail-row"><span class="detail-key">Price</span><span class="detail-val">${{ appointment.service.price }}</span></div>
+                        {% if appointment.notes %}<div class="detail-row"><span class="detail-key">Notes</span><span class="detail-val">{{ appointment.notes }}</span></div>{% endif %}
+                        {% if appointment.meet_link %}
+                        <div class="detail-row">
+                            <span class="detail-key">Meeting</span>
+                            <span class="detail-val">
+                                <a href="{{ appointment.meet_link }}" target="_blank" rel="noopener"
+                                   style="display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#059669,#047857);color:#fff;text-decoration:none;border-radius:9px;font-size:.78rem;font-weight:700;padding:.38rem .9rem;box-shadow:0 2px 10px rgba(5,150,105,.25);">
+                                    <i class="bi bi-camera-video-fill"></i> Join Google Meet
+                                </a>
+                            </span>
+                        </div>
+                        {% elif appointment.status == 'confirmed' %}
+                        <div class="detail-row">
+                            <span class="detail-key">Meeting</span>
+                            <span class="detail-val" style="font-size:.78rem;color:#8C92AC;display:flex;align-items:center;gap:.35rem;">
+                                <i class="bi bi-hourglass-split"></i> Link will be sent by admin
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4 d-flex gap-3">
+                        {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+                        <a href="{% url 'bookings:cancel' appointment.pk %}" class="btn btn-danger">Cancel</a>
+                        {% endif %}
+                        <a href="/dashboard/" class="btn scalora-btn-ghost">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

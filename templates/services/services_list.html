@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block title %}Services – Scalora{% endblock %}
+
+{% block extra_css %}
+<style>
+/* hero */
+.svc-hero{background:linear-gradient(135deg,#0F1E40 0%,#1B3673 60%,#2a4a8a 100%);padding:9rem 0 5rem;position:relative;overflow:hidden;}
+.svc-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c9b37e' fill-opacity='.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+.svc-orb-1{position:absolute;top:-80px;right:-80px;width:420px;height:420px;background:radial-gradient(circle,rgba(201,179,126,.1) 0%,transparent 65%);border-radius:50%;}
+.svc-orb-2{position:absolute;bottom:-60px;left:10%;width:280px;height:280px;background:radial-gradient(circle,rgba(74,93,138,.25) 0%,transparent 65%);border-radius:50%;}
+.svc-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(201,179,126,.12);border:1px solid rgba(201,179,126,.28);border-radius:50px;padding:.35rem 1rem;font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c9b37e;margin-bottom:1.2rem;}
+.svc-eyebrow-dot{width:6px;height:6px;background:#c9b37e;border-radius:50%;animation:svcdot 2s infinite;}
+@keyframes svcdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+.svc-hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,3.5rem);font-weight:900;color:#fff;margin-bottom:.75rem;line-height:1.1;}
+.svc-hero .lead{font-size:1.05rem;color:rgba(255,255,255,.6);max-width:520px;margin:0 0 2rem;}
+.svc-trust{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.svc-trust-item{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:rgba(255,255,255,.55);font-weight:600;}
+.svc-trust-item i{color:#c9b37e;}
+/* toolbar */
+.svc-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem;}
+.svc-search-wrap{position:relative;width:100%;max-width:360px;}
+.svc-search-input{width:100%;background:#fff;border:1.5px solid rgba(27,54,115,.14);border-radius:12px;padding:.65rem 1rem .65rem 2.7rem;font-size:.88rem;font-family:'DM Sans',sans-serif;color:#0F1E40;outline:none;box-shadow:0 2px 10px rgba(15,30,64,.05);transition:all .2s;}
+.svc-search-input::placeholder{color:#8C92AC;}
+.svc-search-input:focus{border-color:#c9b37e;box-shadow:0 0 0 3px rgba(201,179,126,.15);}
+.svc-search-icon{position:absolute;left:.88rem;top:50%;transform:translateY(-50%);color:#8C92AC;font-size:.92rem;pointer-events:none;}
+.svc-search-clear{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#8C92AC;cursor:pointer;font-size:.82rem;padding:0;display:none;transition:color .18s;}
+.svc-search-clear:hover{color:#1B3673;}
+.svc-sort-wrap{display:flex;align-items:center;gap:.5rem;}
+.svc-sort-label{font-size:.78rem;color:#8C92AC;font-weight:600;white-space:nowrap;}
+.svc-sort-select{background:#fff;border:1.5px solid rgba(27,54,115,.13);border-radius:10px;padding:.5rem .85rem;font-size:.8rem;font-weight:600;color:#1B3673;cursor:pointer;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;}
+.svc-sort-select:focus{border-color:#c9b37e;}
+.svc-count{font-size:.78rem;color:#8C92AC;font-weight:600;}
+/* card */
+.sv-card{background:#fff;border:1px solid rgba(27,54,115,.09);border-radius:20px;overflow:hidden;box-shadow:0 2px 18px rgba(15,30,64,.06);transition:all .3s ease;display:flex;flex-direction:column;height:100%;position:relative;}
+.sv-card:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(15,30,64,.13);border-color:rgba(201,179,126,.3);}
+.sv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1B3673,#4A5D8A);opacity:0;transition:opacity .3s;}
+.sv-card:hover::before{opacity:1;}
+.sv-card-head{padding:1.75rem 1.75rem 0;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;}
+.sv-icon-wrap{width:52px;height:52px;border-radius:14px;flex-shrink:0;background:linear-gradient(135deg,rgba(27,54,115,.08),rgba(201,179,126,.1));display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#1B3673;transition:all .3s;}
+.sv-card:hover .sv-icon-wrap{background:linear-gradient(135deg,#1B3673,#4A5D8A);color:#fff;box-shadow:0 6px 18px rgba(27,54,115,.3);transform:scale(1.08);}
+.sv-price-block{text-align:right;flex-shrink:0;}
+.sv-price{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:700;color:#0F1E40;line-height:1;}
+.sv-price sup{font-size:.9rem;font-weight:600;vertical-align:super;}
+.sv-per{font-size:.7rem;color:#8C92AC;font-weight:600;margin-top:.1rem;}
+.sv-card-body{padding:1.2rem 1.75rem;flex:1;}
+.sv-name{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:#0F1E40;margin-bottom:.65rem;line-height:1.3;}
+.sv-desc{font-size:.87rem;color:#5a6678;line-height:1.75;margin:0;}
+.sv-meta{display:flex;align-items:center;gap:1rem;padding:.85rem 1.75rem;border-top:1px solid rgba(27,54,115,.06);flex-wrap:wrap;}
+.sv-meta-item{display:flex;align-items:center;gap:.35rem;font-size:.76rem;color:#8C92AC;font-weight:600;}
+.sv-meta-item i{color:#c9b37e;font-size:.82rem;}
+.sv-card-foot{padding:0 1.75rem 1.75rem;display:flex;gap:.6rem;}
+.sv-btn-detail{flex:1;padding:.6rem;background:rgba(27,54,115,.05);border:1.5px solid rgba(27,54,115,.13);border-radius:11px;font-size:.8rem;font-weight:700;color:#1B3673;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.35rem;transition:all .2s;}
+.sv-btn-detail:hover{background:rgba(27,54,115,.1);border-color:#1B3673;color:#1B3673;}
+.sv-btn-book{flex:1.6;padding:.6rem;background:linear-gradient(135deg,#1B3673,#4A5D8A);border:none;border-radius:11px;font-size:.8rem;font-weight:700;color:#fff;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.35rem;box-shadow:0 3px 12px rgba(27,54,115,.25);transition:all .2s;}
+.sv-btn-book:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,54,115,.35);color:#fff;}
+.sv-popular-badge{position:absolute;top:1rem;right:1.1rem;background:linear-gradient(135deg,#c9b37e,#a8913e);color:#0F1E40;font-size:.6rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:.22rem .6rem;border-radius:6px;box-shadow:0 2px 8px rgba(201,179,126,.35);z-index:2;}
+/* no results */
+.svc-no-results{text-align:center;padding:4rem 1rem;display:none;}
+.svc-no-results i{font-size:2.5rem;color:rgba(27,54,115,.18);display:block;margin-bottom:.75rem;}
+.svc-no-results h5{font-family:'Playfair Display',serif;color:#0F1E40;margin-bottom:.35rem;}
+.svc-no-results p{font-size:.85rem;color:#8C92AC;}
+.sv-col-item.hidden{display:none!important;}
+/* cta */
+.svc-cta-banner{background:linear-gradient(135deg,#0F1E40,#1B3673);border-radius:24px;padding:4rem 3rem;text-align:center;margin-top:2rem;position:relative;overflow:hidden;border:1px solid rgba(201,179,126,.15);}
+.svc-cta-banner::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:350px;height:350px;background:radial-gradient(circle,rgba(201,179,126,.1) 0%,transparent 60%);border-radius:50%;}
+.svc-cta-banner h2{font-family:'Playfair Display',serif;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700;color:#fff;margin-bottom:.75rem;position:relative;}
+.svc-cta-banner p{color:rgba(255,255,255,.55);position:relative;margin-bottom:2rem;}
+.svc-cta-btn{display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#c9b37e,#a8913e);color:#0F1E40;font-weight:800;font-size:.95rem;padding:.9rem 2.4rem;border-radius:13px;text-decoration:none;box-shadow:0 6px 24px rgba(201,179,126,.35);transition:all .22s;position:relative;}
+.svc-cta-btn:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(201,179,126,.45);color:#0F1E40;}
+/* empty */
+.svc-empty{text-align:center;padding:5rem 2rem;}
+.svc-empty-icon{width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,rgba(27,54,115,.06),rgba(201,179,126,.08));display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:rgba(27,54,115,.2);margin:0 auto 1.5rem;}
+.svc-empty h4{font-family:'Playfair Display',serif;color:#0F1E40;margin-bottom:.5rem;}
+.svc-empty p{color:#8C92AC;max-width:380px;margin:0 auto;font-size:.9rem;}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="svc-hero">
+  <div class="svc-orb-1"></div>
+  <div class="svc-orb-2"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="svc-eyebrow"><span class="svc-eyebrow-dot"></span>What We Offer</div>
+        <h1>Our <span style="color:#c9b37e;">Services</span></h1>
+        <p class="lead">Tailored solutions to grow your business with expert support — flexible, transparent, and built to scale with you.</p>
+        <div class="svc-trust">
+          <div class="svc-trust-item"><i class="bi bi-patch-check-fill"></i>Expert Professionals</div>
+          <div class="svc-trust-item"><i class="bi bi-arrows-angle-expand"></i>Flexible Engagements</div>
+          <div class="svc-trust-item"><i class="bi bi-shield-lock-fill"></i>Transparent Pricing</div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:300px;opacity:.9;">
+          {% for service in services|slice:":4" %}
+          <div style="background:rgba(255,255,255,.06);border:1px solid rgba(201,179,126,.15);border-radius:14px;padding:1.1rem;text-align:center;">
+            <i class="bi {{ service.icon|default:'bi-briefcase' }}" style="font-size:1.6rem;color:#c9b37e;display:block;margin-bottom:.4rem;"></i>
+            <div style="font-size:.72rem;font-weight:700;color:rgba(255,255,255,.7);line-height:1.3;">{{ service.name|truncatechars:22 }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="py-section">
+  <div class="container">
+    {% if services %}
+    <!-- Toolbar -->
+    <div class="svc-toolbar">
+      <div class="svc-search-wrap">
+        <i class="bi bi-search svc-search-icon"></i>
+        <input type="text" id="svcSearch" class="svc-search-input" placeholder="Search services…" autocomplete="off">
+        <button type="button" class="svc-search-clear" id="svcSearchClear"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="svc-sort-wrap">
+        <span class="svc-sort-label">Sort by:</span>
+        <select class="svc-sort-select" id="svcSort">
+          <option value="default">Default</option>
+          <option value="price-asc">Price: Low → High</option>
+          <option value="price-desc">Price: High → Low</option>
+          <option value="name">Name A–Z</option>
+        </select>
+      </div>
+      <div class="svc-count" id="svcCount">{{ services|length }} service{{ services|length|pluralize }}</div>
+    </div>
+
+    <!-- Grid -->
+    <div class="row g-4" id="svcGrid">
+      {% for service in services %}
+      <div class="col-lg-4 col-md-6 sv-col-item"
+           data-name="{{ service.name|lower }}"
+           data-desc="{{ service.description|lower|truncatechars:200 }}"
+           data-price="{{ service.price }}">
+        <div class="sv-card h-100" style="position: relative;">
+    {% if forloop.first %}
+        <div class="sv-popular-badge" style="position: absolute; top: 10px; left: 10px; right: auto;">
+            &#11088; Popular
+        </div>
+    {% endif %}
+          <div class="sv-card-head">
+            <div class="sv-icon-wrap"><i class="bi {{ service.icon|default:'bi-briefcase' }}"></i></div>
+            <div class="sv-price-block">
+              <div class="sv-price"><sup>$</sup>{{ service.price }}</div>
+              <div class="sv-per">per session</div>
+            </div>
+          </div>
+          <div class="sv-card-body">
+            <h5 class="sv-name">{{ service.name }}</h5>
+            <p class="sv-desc">{{ service.description|truncatechars:130 }}</p>
+          </div>
+          <div class="sv-meta">
+            <div class="sv-meta-item"><i class="bi bi-clock-fill"></i>{{ service.duration_display }}</div>
+            <div class="sv-meta-item"><i class="bi bi-person-check-fill"></i>Expert matched</div>
+            <div class="sv-meta-item"><i class="bi bi-arrow-repeat"></i>Flexible</div>
+          </div>
+          <div class="sv-card-foot">
+            <a href="/services/{{ service.pk }}/" class="sv-btn-detail"><i class="bi bi-info-circle"></i>Details</a>
+            <a href="/bookings/book/?service={{ service.pk }}" class="sv-btn-book"><i class="bi bi-calendar-plus"></i>Book Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="svc-no-results" id="svcNoResults">
+      <i class="bi bi-search"></i>
+      <h5>No services found</h5>
+      <p id="svcNoResultsMsg">Try a different search term.</p>
+    </div>
+
+    <div class="svc-cta-banner">
+      <h2>Not sure which service is right for you?</h2>
+      <p>Book a complimentary discovery call — our team will match you with the perfect solution.</p>
+      <a href="/bookings/book/" class="svc-cta-btn"><i class="bi bi-calendar-plus"></i>Book a Strategy Call</a>
+    </div>
+
+    {% else %}
+    <div class="svc-empty">
+      <div class="svc-empty-icon"><i class="bi bi-briefcase"></i></div>
+      <h4>No services available yet</h4>
+      <p>Check back soon — we're adding new offerings regularly.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const search=document.getElementById('svcSearch');
+  const clear=document.getElementById('svcSearchClear');
+  const sort=document.getElementById('svcSort');
+  const grid=document.getElementById('svcGrid');
+  const countEl=document.getElementById('svcCount');
+  const noRes=document.getElementById('svcNoResults');
+  const noResMsg=document.getElementById('svcNoResultsMsg');
+  const cols=()=>Array.from(grid.querySelectorAll('.sv-col-item'));
+
+  function filter(){
+    const q=(search.value||'').trim().toLowerCase();
+    let v=0;
+    cols().forEach(c=>{
+      const ok=!q||c.dataset.name.includes(q)||c.dataset.desc.includes(q);
+      c.classList.toggle('hidden',!ok);
+      if(ok)v++;
+    });
+    countEl.textContent=v+' service'+(v!==1?'s':'');
+    clear.style.display=q?'block':'none';
+    noRes.style.display=v===0?'block':'none';
+    if(v===0)noResMsg.textContent='No results for "'+q+'". Try a different search term.';
+  }
+
+  function applySort(){
+    const val=sort.value;
+    const items=cols();
+    items.sort((a,b)=>{
+      if(val==='price-asc') return parseFloat(a.dataset.price)-parseFloat(b.dataset.price);
+      if(val==='price-desc')return parseFloat(b.dataset.price)-parseFloat(a.dataset.price);
+      if(val==='name')      return a.dataset.name.localeCompare(b.dataset.name);
+      return 0;
+    });
+    items.forEach(i=>grid.appendChild(i));
+  }
+
+  search.addEventListener('input',filter);
+  clear.addEventListener('click',()=>{search.value='';filter();search.focus();});
+  sort.addEventListener('change',applySort);
+})();
+</script>
+{% endblock %}

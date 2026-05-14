@@ -1,0 +1,324 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}My Bookings – Scalora{% endblock %}
+{% block page_title %}My Bookings{% endblock %}
+
+{% block content %}
+<style>
+  .scb-wrap { font-family:'DM Sans',sans-serif; padding-bottom:3rem; }
+
+  /* Header */
+  .scb-header { display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+  .scb-header-left h2 { font-family:'Playfair Display',serif; font-size:clamp(1.5rem,3vw,2rem); font-weight:700; margin:0 0 .2rem; color:#0F1E40; }
+  .scb-header-left p   { font-size:13px; color:#8C92AC; margin:0; }
+  .scb-book-btn {
+    display:inline-flex; align-items:center; gap:6px; padding:.6rem 1.25rem;
+    background:linear-gradient(135deg,#1B3673,#4A5D8A); color:#fff!important;
+    border:none; border-radius:10px; font-size:13.5px; font-weight:600;
+    text-decoration:none; transition:all .18s; white-space:nowrap;
+    box-shadow:0 3px 12px rgba(27,54,115,.25);
+  }
+  .scb-book-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(27,54,115,.35); color:#fff!important; }
+
+  /* Filters */
+  .scb-filters { display:flex; gap:.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .scb-filter {
+    font-size:12px; font-weight:600; padding:5px 14px; border-radius:20px;
+    border:1.5px solid rgba(27,54,115,.12); background:#fff;
+    color:#8C92AC; cursor:pointer; transition:all .15s;
+  }
+  .scb-filter:hover,.scb-filter.active {
+    border-color:rgba(201,179,126,.5); background:rgba(201,179,126,.08); color:#a8913e;
+  }
+
+  /* Panel */
+  .scb-panel { background:#fff; border:1px solid rgba(27,54,115,.08); border-radius:16px; overflow:hidden; box-shadow:0 2px 16px rgba(15,30,64,.05); }
+
+  /* Table */
+  .scb-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .scb-table thead th {
+    font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color:#8C92AC; padding:1rem 1.25rem .85rem;
+    border-bottom:1px solid rgba(27,54,115,.07);
+    background:rgba(27,54,115,.02); text-align:left; white-space:nowrap;
+  }
+  .scb-table tbody tr { border-bottom:1px solid rgba(27,54,115,.05); transition:background .12s; }
+  .scb-table tbody tr:last-child { border-bottom:none; }
+  .scb-table tbody tr:hover { background:rgba(27,54,115,.018); }
+  .scb-table td { padding:.9rem 1.25rem; vertical-align:middle; color:#374151; }
+
+  .scb-id { font-size:11px; font-weight:700; color:#8C92AC; background:rgba(27,54,115,.05); border:1px solid rgba(27,54,115,.08); border-radius:6px; padding:2px 8px; white-space:nowrap; }
+  .scb-service { font-weight:700; color:#0F1E40; font-size:13.5px; }
+  .scb-date { color:#0F1E40; white-space:nowrap; font-weight:600; font-size:.82rem; }
+  .scb-time { display:block; font-size:11.5px; color:#8C92AC; margin-top:2px; }
+
+  /* Status badges */
+  .scb-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+  .scb-badge::before { content:''; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+  .scb-badge.confirmed { background:rgba(16,185,129,.1); color:#065f46; } .scb-badge.confirmed::before { background:#10b981; }
+  .scb-badge.completed { background:rgba(59,130,246,.1); color:#1e40af; } .scb-badge.completed::before { background:#3b82f6; }
+  .scb-badge.pending   { background:rgba(245,158,11,.1); color:#92400e; } .scb-badge.pending::before   { background:#f59e0b; }
+  .scb-badge.cancelled { background:rgba(239,68,68,.08); color:#7f1d1d; } .scb-badge.cancelled::before { background:#ef4444; }
+
+  /* ── Meet link cell ── */
+  .meet-cell { display:flex; flex-direction:column; gap:.3rem; }
+
+  /* Join button — prominent, green */
+  .meet-join-btn {
+    display:inline-flex; align-items:center; gap:.45rem;
+    background:linear-gradient(135deg,#059669,#047857);
+    color:#fff!important; text-decoration:none;
+    border-radius:9px; font-size:.76rem; font-weight:700;
+    padding:.38rem .9rem; transition:all .2s;
+    box-shadow:0 2px 10px rgba(5,150,105,.25);
+    white-space:nowrap; width:fit-content;
+  }
+  .meet-join-btn:hover { transform:translateY(-1px); box-shadow:0 5px 16px rgba(5,150,105,.38); color:#fff!important; }
+
+  /* Pulse animation on new Meet link */
+  .meet-join-btn.pulse { animation:meetpulse 2.4s ease infinite; }
+  @keyframes meetpulse {
+    0%,100% { box-shadow:0 2px 10px rgba(5,150,105,.25); }
+    50%      { box-shadow:0 2px 22px rgba(5,150,105,.55); }
+  }
+
+  /* "Awaiting link" — shown for confirmed but no link yet */
+  .meet-awaiting {
+    display:inline-flex; align-items:center; gap:.35rem;
+    font-size:.72rem; font-weight:600; color:#8C92AC;
+    background:rgba(27,54,115,.04); border:1px solid rgba(27,54,115,.1);
+    border-radius:8px; padding:.28rem .7rem;
+  }
+
+  /* Action buttons */
+  .scb-actions { display:flex; align-items:center; gap:.5rem; }
+  .scb-btn-view {
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+    padding:5px 12px; border-radius:8px;
+    border:1.5px solid rgba(201,179,126,.35); background:rgba(201,179,126,.07);
+    color:#a8913e; text-decoration:none; transition:all .15s;
+  }
+  .scb-btn-view:hover { background:rgba(201,179,126,.14); border-color:rgba(201,179,126,.55); color:#c49a38; text-decoration:none; }
+  .scb-btn-cancel {
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+    padding:5px 12px; border-radius:8px;
+    border:1.5px solid rgba(239,68,68,.25); background:rgba(239,68,68,.05);
+    color:#a32d2d; text-decoration:none; transition:all .15s;
+  }
+  .scb-btn-cancel:hover { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.45); color:#c03535; text-decoration:none; }
+
+  /* Empty state */
+  .scb-empty { text-align:center; padding:4rem 2rem; }
+  .scb-empty-icon { width:56px; height:56px; border-radius:16px; background:rgba(201,179,126,.1); border:1px solid rgba(201,179,126,.25); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:22px; color:#c9b37e; }
+  .scb-empty h5 { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:700; margin-bottom:.4rem; color:#0F1E40; }
+  .scb-empty p  { font-size:13px; color:#8C92AC; margin-bottom:1.5rem; }
+
+  /* ── Meet link banner (top of page when a new link exists) ── */
+  .meet-banner {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem;
+    background:linear-gradient(135deg,rgba(5,150,105,.08),rgba(5,150,105,.04));
+    border:1px solid rgba(5,150,105,.25); border-radius:14px;
+    padding:1rem 1.4rem; margin-bottom:1.5rem;
+  }
+  .meet-banner-left { display:flex; align-items:center; gap:.85rem; }
+  .meet-banner-icon { width:40px; height:40px; border-radius:10px; background:rgba(5,150,105,.12); display:flex; align-items:center; justify-content:center; font-size:1.15rem; color:#059669; flex-shrink:0; }
+  .meet-banner-title { font-weight:700; color:#0F1E40; font-size:.9rem; }
+  .meet-banner-sub   { font-size:.76rem; color:#8C92AC; margin-top:.1rem; }
+
+  /* Mobile cards */
+  @media(max-width:640px) {
+    .scb-table-wrap { display:none; }
+    .scb-card-list  { display:flex!important; flex-direction:column; gap:.75rem; padding:1rem; }
+  }
+  @media(min-width:641px) { .scb-card-list { display:none; } }
+  .scb-booking-card { border:1px solid rgba(27,54,115,.09); border-radius:12px; padding:1rem; background:rgba(27,54,115,.015); }
+  .scb-booking-card-top   { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.75rem; }
+  .scb-booking-card-meta  { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:.5rem; font-size:12.5px; color:#8C92AC; }
+  .scb-booking-card-meta span { display:flex; align-items:center; gap:4px; }
+  .scb-booking-card-foot  { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.75rem; padding-top:.75rem; border-top:1px solid rgba(27,54,115,.06); }
+</style>
+
+<div class="scb-wrap">
+
+  <!-- Meet link alert banner: show if any confirmed booking has a link -->
+  {% for b in bookings %}
+    {% if b.status == 'confirmed' and b.meet_link %}
+    <div class="meet-banner">
+      <div class="meet-banner-left">
+        <div class="meet-banner-icon"><i class="bi bi-camera-video-fill"></i></div>
+        <div>
+          <div class="meet-banner-title">Your Google Meet link is ready!</div>
+          <div class="meet-banner-sub">{{ b.service.name }} · {{ b.date|date:"M j, Y" }} · {{ b.time_slot|time:"g:i A" }} – {{ b.time_slot_end|time:"g:i A" }}</div>
+        </div>
+      </div>
+      <a href="{{ b.meet_link }}" target="_blank" rel="noopener" class="meet-join-btn pulse">
+        <i class="bi bi-camera-video-fill"></i> Join Meeting
+      </a>
+    </div>
+    {% if not forloop.last %}{% endif %}
+    {% endif %}
+  {% endfor %}
+
+  <!-- Header -->
+  <div class="scb-header">
+    <div class="scb-header-left">
+      <h2>My Appointments</h2>
+      <p>Track and manage all your bookings in one place.</p>
+    </div>
+    <a href="/bookings/book/" class="scb-book-btn">
+      <i class="bi bi-plus-lg"></i> Book New
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="scb-filters" id="scbFilters">
+    <span class="scb-filter active" data-filter="all">All</span>
+    <span class="scb-filter" data-filter="confirmed">Confirmed</span>
+    <span class="scb-filter" data-filter="pending">Pending</span>
+    <span class="scb-filter" data-filter="completed">Completed</span>
+    <span class="scb-filter" data-filter="cancelled">Cancelled</span>
+  </div>
+
+  <!-- Panel -->
+  <div class="scb-panel">
+    {% if bookings %}
+
+    <!-- Desktop table -->
+    <div class="scb-table-wrap">
+      <div class="table-responsive">
+        <table class="scb-table" id="scbTable">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Service</th>
+              <th>Date &amp; Time</th>
+              <th>Status</th>
+              <th>Meeting Link</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for b in bookings %}
+          <tr data-status="{{ b.status }}">
+            <td><span class="scb-id">#{{ b.pk }}</span></td>
+            <td><span class="scb-service">{{ b.service.name }}</span></td>
+            <td>
+              <span class="scb-date"><i class="bi bi-calendar3" style="opacity:.5;margin-right:4px;font-size:11px;"></i>{{ b.date|date:"M j, Y" }}</span>
+              <span class="scb-time" style="font-size:11px; white-space:nowrap;">
+  <i class="bi bi-clock" style="font-size:10px;margin-right:3px;"></i>
+  {{ b.time_slot|time:"g:i A" }} – {{ b.time_slot_end|time:"g:i A" }}
+</span>
+            <td><span class="scb-badge {{ b.status }}">{{ b.get_status_display }}</span></td>
+
+            <!-- Meet link cell -->
+            <td>
+              <div class="meet-cell">
+                {% if b.meet_link %}
+                  <a href="{{ b.meet_link }}" target="_blank" rel="noopener"
+                     class="meet-join-btn {% if b.status == 'confirmed' %}pulse{% endif %}">
+                    <i class="bi bi-camera-video-fill"></i> Join Meeting
+                  </a>
+                {% elif b.status == 'confirmed' %}
+                  <span class="meet-awaiting">
+                    <i class="bi bi-hourglass-split"></i> Awaiting link from admin
+                  </span>
+                {% else %}
+                  <span style="font-size:.76rem;color:#d1d5db;">—</span>
+                {% endif %}
+              </div>
+            </td>
+
+            <td>
+              <div class="scb-actions">
+                <a href="{% url 'bookings:detail' b.pk %}" class="scb-btn-view">
+                  <i class="bi bi-eye" style="font-size:12px;"></i> View
+                </a>
+                {% if b.status == 'pending' or b.status == 'confirmed' %}
+                <a href="{% url 'bookings:cancel' b.pk %}" class="scb-btn-cancel">
+                  <i class="bi bi-x" style="font-size:12px;"></i> Cancel
+                </a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="scb-card-list">
+      {% for b in bookings %}
+      <div class="scb-booking-card" data-status="{{ b.status }}">
+        <div class="scb-booking-card-top">
+          <div>
+            <div class="scb-service" style="margin-bottom:4px;">{{ b.service.name }}</div>
+            <span class="scb-id">#{{ b.pk }}</span>
+          </div>
+          <span class="scb-badge {{ b.status }}">{{ b.get_status_display }}</span>
+        </div>
+        <div class="scb-booking-card-meta">
+          <span><i class="bi bi-calendar3" style="font-size:11px;"></i>{{ b.date|date:"M j, Y" }}</span>
+          <span><i class="bi bi-clock" style="font-size:11px;"></i>{{ b.time_slot|time:"g:i A" }} – {{ b.time_slot_end|time:"g:i A" }}</span>
+        </div>
+
+        {% if b.meet_link %}
+        <a href="{{ b.meet_link }}" target="_blank" rel="noopener"
+           class="meet-join-btn {% if b.status == 'confirmed' %}pulse{% endif %}" style="margin-top:.5rem;">
+          <i class="bi bi-camera-video-fill"></i> Join Meeting
+        </a>
+        {% elif b.status == 'confirmed' %}
+        <div class="meet-awaiting" style="margin-top:.5rem;">
+          <i class="bi bi-hourglass-split"></i> Awaiting meeting link
+        </div>
+        {% endif %}
+
+        <div class="scb-booking-card-foot">
+          <a href="{% url 'bookings:detail' b.pk %}" class="scb-btn-view">
+            <i class="bi bi-eye" style="font-size:12px;"></i> View
+          </a>
+          {% if b.status == 'pending' or b.status == 'confirmed' %}
+          <a href="{% url 'bookings:cancel' b.pk %}" class="scb-btn-cancel">
+            <i class="bi bi-x" style="font-size:12px;"></i> Cancel
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="scb-empty">
+      <div class="scb-empty-icon"><i class="bi bi-calendar-x"></i></div>
+      <h5>No appointments yet</h5>
+      <p>When you book a service, your appointments will appear here.</p>
+      <a href="/bookings/book/" class="scb-book-btn">
+        <i class="bi bi-calendar-plus"></i> Book your first appointment
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('#scbFilters .scb-filter').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('#scbFilters .scb-filter').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const f = pill.dataset.filter;
+
+    // Filter table rows
+    document.querySelectorAll('#scbTable tbody tr').forEach(row => {
+      row.style.display = (f === 'all' || row.dataset.status === f) ? '' : 'none';
+    });
+    // Filter mobile cards
+    document.querySelectorAll('.scb-booking-card').forEach(card => {
+      card.style.display = (f === 'all' || card.dataset.status === f) ? '' : 'none';
+    });
+  });
+});
+</script>
+{% endblock %}

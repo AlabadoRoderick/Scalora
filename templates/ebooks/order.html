@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ ebook.title }} – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section"><div class="container">
+<h1 class="page-title">Order <span class="text-gold">eBook</span></h1>
+</div></div>
+<section class="py-section"><div class="container"><div class="row justify-content-center">
+<div class="col-lg-6">
+<div class="glass-card p-5">
+<div class="d-flex align-items-center gap-4 mb-5 pb-4" style="border-bottom:1px solid rgba(255,255,255,0.1)">
+{% if ebook.cover_image %}<img src="{{ ebook.cover_image.url }}" style="width:70px;border-radius:8px;">{% endif %}
+<div><h5 class="mb-1">{{ ebook.title }}</h5>
+<p class="text-gold mb-0 fs-5">${{ ebook.price }} per copy</p></div>
+</div>
+<form method="POST">{% csrf_token %}
+<div class="mb-3"><label class="scalora-label">Quantity</label>{{ form.quantity }}</div>
+<div class="mb-4"><label class="scalora-label">Notes / Special Instructions</label>{{ form.notes }}</div>
+<div class="alert" style="background:rgba(201,179,126,0.1);border:1px solid rgba(201,179,126,0.3);border-radius:10px">
+<i class="bi bi-info-circle me-2 text-gold"></i>
+<small>After placing your order, our team will contact you with payment instructions. Delivery within 24 hours of confirmed payment.</small>
+</div>
+<button type="submit" class="btn scalora-btn-primary w-100 mt-3">Place Order</button>
+<a href="{% url 'ebooks:store' %}" class="btn scalora-btn-ghost w-100 mt-2">Back to Store</a>
+</form></div>
+</div></div></div></section>
+{% endblock %}

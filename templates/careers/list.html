@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Careers – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section">
+<div class="container">
+<div class="section-eyebrow">Join the Team</div>
+<h1 class="page-title">Careers at <span class="text-gold">Scalora</span></h1>
+<p class="page-subtitle">Help us empower businesses worldwide. Build something meaningful.</p>
+</div></div>
+<section class="py-section"><div class="container">
+{% if jobs %}
+<div class="row g-4">{% for job in jobs %}
+<div class="col-lg-6">
+<div class="job-card glass-card h-100">
+<div class="jc-header">
+<div><h5 class="jc-title">{{ job.title }}</h5>
+<div class="jc-meta">
+<span class="jc-badge">{{ job.get_job_type_display }}</span>
+<span class="jc-location"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
+{% if job.department %}<span class="jc-dept"><i class="bi bi-building me-1"></i>{{ job.department }}</span>{% endif %}
+</div></div>
+{% if job.salary_range %}<div class="jc-salary">{{ job.salary_range }}</div>{% endif %}
+</div>
+<p class="jc-desc mt-3">{{ job.description|truncatechars:200 }}</p>
+<a href="{% url 'careers:detail' job.pk %}" class="btn scalora-btn-sm mt-3">View & Apply</a>
+</div></div>{% endfor %}</div>
+{% else %}
+<div class="empty-state text-center py-5">
+<i class="bi bi-briefcase empty-icon"></i>
+<h4>No open positions right now</h4>
+<p class="text-muted">Check back soon or reach out to careers@scalora.com</p>
+</div>{% endif %}
+</div></section>
+{% endblock %}

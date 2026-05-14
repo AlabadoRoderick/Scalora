@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Testimonials – Scalora{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <div class="section-eyebrow">Client Stories</div>
+        <h1 class="page-title">What Our Clients <span class="text-gold">Say</span></h1>
+        <p class="page-subtitle">Real stories from real businesses that have grown with Scalora</p>
+    </div>
+</div>
+
+<section class="py-section">
+    <div class="container">
+        {% if testimonials %}
+        <div class="row g-4">
+            {% for t in testimonials %}
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card glass-card h-100">
+                    <div class="tc-stars mb-3">
+                        {% for i in "12345"|make_list %}
+                        <i class="bi bi-star{% if forloop.counter <= t.rating %}-fill{% endif %} text-gold"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="tc-message">"{{ t.message }}"</p>
+                    <div class="tc-author mt-auto pt-3">
+                        {% if t.avatar %}
+                        <img src="{{ t.avatar.url }}" alt="{{ t.name }}" class="tc-avatar">
+                        {% else %}
+                        <div class="tc-avatar-placeholder"><i class="bi bi-person"></i></div>
+                        {% endif %}
+                        <div>
+                            <strong class="tc-name">{{ t.name }}</strong>
+                            {% if t.position %}<span class="tc-position d-block">{{ t.position }}</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <i class="bi bi-chat-quote empty-icon"></i>
+            <h4>No testimonials yet</h4>
+            <p class="text-muted">Be the first to share your Scalora experience!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="cta-section py-section">
+    <div class="container">
+        <div class="cta-inner text-center">
+            <h2 class="cta-headline">Ready to write your own success story?</h2>
+            <a href="/bookings/book/" class="btn scalora-btn-primary btn-lg mt-4">
+                Book a Strategy Call <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

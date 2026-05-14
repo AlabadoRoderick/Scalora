@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Delete Post – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section"><div class="container"><h1 class="page-title">Delete Blog Post</h1></div></div>
+<section class="py-section"><div class="container"><div class="row justify-content-center"><div class="col-lg-5">
+<div class="glass-card p-5 text-center">
+<i class="bi bi-exclamation-triangle-fill text-warning fs-1 mb-3"></i>
+<h4>Delete "{{ blog.title }}"?</h4>
+<p class="text-muted">This action cannot be undone.</p>
+<form method="POST" class="mt-4 d-flex gap-3 justify-content-center">{% csrf_token %}
+<button type="submit" class="btn btn-danger">Yes, Delete</button>
+<a href="/dashboard/admin/blogs/" class="btn scalora-btn-ghost">Cancel</a>
+</form></div>
+</div></div></div></section>
+{% endblock %}

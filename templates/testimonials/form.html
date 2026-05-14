@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section"><div class="container"><h1 class="page-title">{{ title }}</h1></div></div>
+<section class="py-section"><div class="container"><div class="row justify-content-center"><div class="col-lg-6">
+<div class="glass-card p-5">
+<form method="POST" enctype="multipart/form-data">{% csrf_token %}
+<div class="mb-3"><label class="scalora-label">Name</label>{{ form.name }}</div>
+<div class="mb-3"><label class="scalora-label">Position / Company</label>{{ form.position }}</div>
+<div class="mb-3"><label class="scalora-label">Message</label>{{ form.message }}</div>
+<div class="mb-3"><label class="scalora-label">Rating</label>{{ form.rating }}</div>
+<div class="mb-3"><label class="scalora-label">Photo (optional)</label>{{ form.avatar }}</div>
+<div class="mb-4"><div class="form-check">{{ form.is_active }}<label class="form-check-label scalora-label ms-2">Active</label></div></div>
+<div class="d-flex gap-3">
+<button type="submit" class="btn scalora-btn-primary">Save Testimonial</button>
+<a href="/dashboard/admin/testimonials/" class="btn scalora-btn-ghost">Cancel</a>
+</div></form></div>
+</div></div></div></section>
+{% endblock %}

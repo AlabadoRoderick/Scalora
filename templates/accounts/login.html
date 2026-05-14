@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login – Scalora{% endblock %}
+
+{% block content %}
+<div class="auth-section">
+    <div class="auth-bg-canvas"></div>
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-5">
+                <div class="auth-card glass-card">
+                    <div class="auth-header text-center mb-4">
+                        <h2 class="auth-brand">
+    <img src="{% static 'images/scalora-logo.png' %}" 
+         alt="Scalora Logo" 
+         style="height: 50px; width: auto;">
+</h2>
+                        <h4 class="auth-title">Welcome Back</h4>
+                        <p class="auth-subtitle">Sign in to your account</p>
+                    </div>
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label scalora-label">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label scalora-label">Password</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}<div class="invalid-feedback d-block">{{ form.password.errors.0 }}</div>{% endif %}
+                        </div>
+                        {% if form.non_field_errors %}
+                        <div class="alert scalora-alert alert-danger mb-3">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn scalora-btn-primary w-100 btn-lg">
+                            Sign In <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                    <p class="text-center mt-4 auth-switch">
+                        Don't have an account? <a href="/accounts/register/" class="auth-link">Create one free</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

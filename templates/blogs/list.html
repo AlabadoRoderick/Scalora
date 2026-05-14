@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Blog & Insights – Scalora{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <div class="section-eyebrow">Knowledge Hub</div>
+        <h1 class="page-title">Blog & <span class="text-gold">Insights</span></h1>
+        <p class="page-subtitle">Actionable strategies to help your business grow faster</p>
+    </div>
+</div>
+
+<section class="py-section">
+    <div class="container">
+        {% if blogs %}
+        <div class="row g-4">
+            {% for blog in blogs %}
+            <div class="col-lg-4 col-md-6">
+                <div class="blog-card glass-card h-100">
+                    {% if blog.image %}
+                    <div class="blog-img-wrap">
+                        <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-img">
+                    </div>
+                    {% else %}
+                    <div class="blog-img-placeholder"><i class="bi bi-newspaper"></i></div>
+                    {% endif %}
+                    <div class="blog-body">
+                        <div class="blog-meta">
+                            <span class="blog-date"><i class="bi bi-calendar3 me-1"></i>{{ blog.created_at|date:"M j, Y" }}</span>
+                            {% if blog.tags %}<span class="blog-tag">{{ blog.tags|truncatechars:20 }}</span>{% endif %}
+                        </div>
+                        <h5 class="blog-title mt-2">{{ blog.title }}</h5>
+                        <p class="blog-excerpt">{{ blog.excerpt|truncatechars:120 }}</p>
+                        <a href="{% url 'blogs:detail' blog.slug %}" class="blog-read-more">
+                            Read Article <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <i class="bi bi-newspaper empty-icon"></i>
+            <h4>No blog posts yet</h4>
+            <p class="text-muted">Insights and articles coming soon. Check back shortly.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

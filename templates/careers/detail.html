@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} – Scalora Careers{% endblock %}
+{% block content %}
+<div class="page-header-section">
+<div class="container">
+<div class="section-eyebrow">Open Position</div>
+<h1 class="page-title">{{ job.title }}</h1>
+<p class="page-subtitle">{{ job.get_job_type_display }} · {{ job.location }}</p>
+</div></div>
+<section class="py-section"><div class="container"><div class="row justify-content-center"><div class="col-lg-8">
+<div class="glass-card p-5">
+{% if job.salary_range %}<div class="mb-4"><span class="badge bg-primary fs-6">{{ job.salary_range }}</span></div>{% endif %}
+<h5 class="text-gold mb-3">About the Role</h5>
+<div>{{ job.description|linebreaks }}</div>
+<h5 class="text-gold mt-5 mb-3">Requirements</h5>
+<div>{{ job.requirements|linebreaks }}</div>
+<div class="mt-5 p-4" style="background:rgba(201,179,126,0.08);border-radius:12px;border:1px solid rgba(201,179,126,0.2)">
+<h6>Ready to Apply?</h6>
+<p class="text-muted mb-3">Send resume + cover letter to <strong>careers@scalora.com</strong> — Subject: <strong>{{ job.title }}</strong></p>
+<a href="mailto:careers@scalora.com?subject={{ job.title }}" class="btn scalora-btn-primary">Apply Now <i class="bi bi-envelope ms-2"></i></a>
+</div></div>
+<a href="{% url 'careers:list' %}" class="btn scalora-btn-ghost mt-4"><i class="bi bi-arrow-left me-2"></i>All Positions</a>
+</div></div></div></section>
+{% endblock %}

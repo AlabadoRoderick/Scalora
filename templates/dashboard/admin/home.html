@@ -1,0 +1,391 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Admin Dashboard – Scalora{% endblock %}
+{% block page_title %}Overview{% endblock %}
+
+{% block content %}
+<style>
+.admin-welcome-banner {
+  background: linear-gradient(135deg, #0F1E40 0%, #1B3673 60%, #2a4a8a 100%);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(201,179,126,0.15);
+}
+.admin-welcome-banner::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(201,179,126,0.12) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.welcome-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem;
+}
+.welcome-text p { color: rgba(255,255,255,0.55); font-size: 0.9rem; margin: 0; }
+.welcome-badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(201,179,126,0.15); border: 1px solid rgba(201,179,126,0.3);
+  border-radius: 50px; padding: 0.3rem 0.85rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: #c9b37e; margin-bottom: 0.75rem;
+}
+.welcome-badge-dot {
+  width: 6px; height: 6px; background: #c9b37e; border-radius: 50%;
+  animation: wbpulse 2s infinite;
+}
+@keyframes wbpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+.welcome-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+.wb-btn-gold {
+  background: linear-gradient(135deg, #c9b37e, #a8913e);
+  color: #0F1E40 !important; border: none; border-radius: 10px;
+  font-weight: 700; font-size: 0.83rem; padding: 0.55rem 1.2rem;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: all .2s;
+}
+.wb-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(201,179,126,0.4); }
+.wb-btn-ghost {
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8) !important;
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 10px;
+  font-weight: 600; font-size: 0.83rem; padding: 0.55rem 1.2rem;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: all .2s;
+}
+.wb-btn-ghost:hover { background: rgba(255,255,255,0.15); color: #fff !important; }
+.welcome-graphic {
+  position: absolute; right: 2rem; top: 50%; transform: translateY(-50%);
+  opacity: 0.06; font-size: 8rem; color: #fff; pointer-events: none;
+}
+
+/* Stat cards */
+.stat-v2 {
+  background: #fff; border-radius: 16px; padding: 1.4rem;
+  border: 1px solid rgba(27,54,115,0.08);
+  box-shadow: 0 2px 16px rgba(15,30,64,0.05);
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.stat-v2:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(15,30,64,0.12); }
+.stat-v2::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; border-radius: 0 0 16px 16px;
+}
+.sv-blue::after  { background: linear-gradient(90deg,#1B3673,#4A5D8A); }
+.sv-gold::after  { background: linear-gradient(90deg,#c9b37e,#a8913e); }
+.sv-green::after { background: linear-gradient(90deg,#10b981,#059669); }
+.sv-sky::after   { background: linear-gradient(90deg,#3b82f6,#2563eb); }
+.sv-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
+.sv-icon {
+  width: 42px; height: 42px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+}
+.sv-icon.c-blue  { background:rgba(27,54,115,0.1);  color:#1B3673; }
+.sv-icon.c-gold  { background:rgba(201,179,126,0.15);color:#a8913e; }
+.sv-icon.c-green { background:rgba(16,185,129,0.1);  color:#059669; }
+.sv-icon.c-sky   { background:rgba(59,130,246,0.1);  color:#2563eb; }
+.sv-trend {
+  font-size: 0.69rem; font-weight: 700; padding: 0.18rem 0.5rem;
+  border-radius: 50px; display: inline-flex; align-items: center; gap: 0.2rem;
+}
+.t-warn { background:rgba(245,158,11,0.1);  color:#d97706; }
+.t-up   { background:rgba(16,185,129,0.1);  color:#059669; }
+.t-info { background:rgba(59,130,246,0.1);  color:#2563eb; }
+.sv-val {
+  font-family:'Playfair Display',serif; font-size:2.1rem;
+  font-weight:700; color:#0F1E40; line-height:1;
+}
+.sv-lbl { font-size:0.76rem; color:#8C92AC; font-weight:600; margin-top:0.2rem; }
+
+/* Quick actions */
+.qa-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 0.65rem; }
+.qa-item {
+  background: #fff; border: 1.5px solid rgba(27,54,115,0.09); border-radius: 13px;
+  padding: 1rem 0.75rem; text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 0.55rem;
+  transition: all .22s; text-align: center;
+}
+.qa-item:hover { border-color:#c9b37e; background:rgba(201,179,126,0.04); transform:translateY(-3px); box-shadow:0 6px 18px rgba(201,179,126,0.18); }
+.qa-ic {
+  width: 38px; height: 38px; border-radius: 9px;
+  background: linear-gradient(135deg,rgba(27,54,115,0.07),rgba(201,179,126,0.09));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem; color: #1B3673; transition: all .22s;
+}
+.qa-item:hover .qa-ic { background:linear-gradient(135deg,#1B3673,#4A5D8A); color:#fff; }
+.qa-lbl { font-size:0.73rem; font-weight:700; color:#1B3673; }
+
+/* Panel */
+.panel {
+  background: #fff; border: 1px solid rgba(27,54,115,0.08);
+  border-radius: 16px; box-shadow: 0 2px 14px rgba(15,30,64,0.05); overflow: hidden;
+}
+.panel-body { padding: 1.25rem 1.4rem; }
+.panel-hdr {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;
+}
+.panel-title {
+  font-family:'Playfair Display',serif; font-size:0.95rem; font-weight:700; color:#0F1E40;
+  display:flex; align-items:center; gap:0.45rem;
+}
+.panel-title::before {
+  content:''; width:7px; height:7px; border-radius:50%; background:#c9b37e; flex-shrink:0;
+}
+.panel-link {
+  font-size:0.73rem; font-weight:700; color:#1B3673; text-decoration:none;
+  display:inline-flex; align-items:center; gap:0.3rem;
+  padding:0.28rem 0.7rem; border-radius:7px;
+  border:1px solid rgba(27,54,115,0.14); background:rgba(27,54,115,0.04); transition:all .2s;
+}
+.panel-link:hover { background:#1B3673; color:#fff; border-color:#1B3673; }
+
+/* Table */
+.mod-table { width:100%; border-collapse:separate; border-spacing:0; }
+.mod-table thead th {
+  font-size:0.68rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  color:#8C92AC; padding:0 1.1rem 0.55rem; border-bottom:1px solid rgba(27,54,115,0.07); white-space:nowrap;
+}
+.mod-table tbody td {
+  padding:0.7rem 1.1rem; font-size:0.83rem; color:#374151;
+  border-bottom:1px solid rgba(27,54,115,0.05); vertical-align:middle;
+}
+.mod-table tbody tr:last-child td { border-bottom:none; }
+.mod-table tbody tr:hover td { background:rgba(27,54,115,0.02); }
+.cli-cell { display:flex; align-items:center; gap:0.6rem; }
+.cli-av {
+  width:29px; height:29px; border-radius:50%;
+  background:linear-gradient(135deg,#1B3673,#4A5D8A);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+  font-size:0.7rem; font-weight:700; flex-shrink:0;
+}
+.cli-name { font-weight:600; color:#0F1E40; font-size:0.82rem; }
+.cli-email { font-size:0.7rem; color:#8C92AC; }
+
+/* Activity feed */
+.act-list { display:flex; flex-direction:column; }
+.act-item { display:flex; align-items:flex-start; gap:0.8rem; padding:0.8rem 0; border-bottom:1px solid rgba(27,54,115,0.05); }
+.act-item:last-child { border-bottom:none; }
+.act-dot {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:0.8rem;
+}
+.act-dot.d-ord { background:rgba(201,179,126,0.15); color:#a8913e; }
+.act-dot.d-ok  { background:rgba(16,185,129,0.12);  color:#059669; }
+.act-dot.d-def { background:rgba(27,54,115,0.1);    color:#1B3673; }
+.act-body { flex:1; min-width:0; }
+.act-text { font-size:0.82rem; color:#374151; line-height:1.4; }
+.act-text strong { color:#0F1E40; }
+.act-meta { display:flex; align-items:center; justify-content:space-between; margin-top:0.2rem; }
+.act-time { font-size:0.7rem; color:#8C92AC; }
+
+/* Mini stat */
+.mini-stat { background:#fff; border:1px solid rgba(27,54,115,0.08); border-radius:14px; }
+.mini-stat-body { padding:1.1rem 1.2rem; display:flex; align-items:center; justify-content:space-between; }
+.mini-val { font-family:'Playfair Display',serif; font-size:1.55rem; font-weight:700; color:#0F1E40; }
+.mini-lbl { font-size:0.73rem; color:#8C92AC; font-weight:600; }
+.mini-ic { font-size:1.35rem; color:#c9b37e; opacity:.8; }
+
+/* Callout */
+.callout-bar {
+  background:linear-gradient(135deg,rgba(27,54,115,0.04),rgba(201,179,126,0.06));
+  border:1px solid rgba(201,179,126,0.22); border-radius:14px;
+  padding:1rem 1.4rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+}
+.callout-ic {
+  width:42px; height:42px; border-radius:11px;
+  background:linear-gradient(135deg,#1B3673,#4A5D8A);
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.15rem; flex-shrink:0;
+}
+</style>
+
+<!-- Welcome Banner -->
+<div class="admin-welcome-banner">
+  <div class="welcome-graphic"><i class="bi bi-grid-3x3-gap"></i></div>
+  <div class="welcome-badge"><span class="welcome-badge-dot"></span>Admin Console</div>
+  <div class="welcome-text">
+    <h2>Welcome back, <span style="color:#c9b37e">{{ user.first_name|default:user.username }}</span> 👋</h2>
+    <p>Here's a live snapshot of everything happening on Scalora today.</p>
+  </div>
+  <div class="welcome-actions">
+    <a href="/dashboard/admin/bookings/" class="wb-btn-gold"><i class="bi bi-list-check"></i>Manage Bookings</a>
+    <a href="/services/add/" class="wb-btn-ghost"><i class="bi bi-plus-circle"></i>Add Service</a>
+    <a href="/blogs/add/" class="wb-btn-ghost"><i class="bi bi-newspaper"></i>New Post</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-v2 sv-blue">
+      <div class="sv-top">
+        <div class="sv-icon c-blue"><i class="bi bi-calendar-check"></i></div>
+        <span class="sv-trend t-info"><i class="bi bi-calendar3"></i> All time</span>
+      </div>
+      <div class="sv-val">{{ total_bookings }}</div>
+      <div class="sv-lbl">Total Bookings</div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-v2 sv-gold">
+      <div class="sv-top">
+        <div class="sv-icon c-gold"><i class="bi bi-clock-history"></i></div>
+        <span class="sv-trend t-warn"><i class="bi bi-exclamation-circle"></i> Needs action</span>
+      </div>
+      <div class="sv-val">{{ pending_bookings }}</div>
+      <div class="sv-lbl">Pending Bookings</div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-v2 sv-green">
+      <div class="sv-top">
+        <div class="sv-icon c-green"><i class="bi bi-bag-check"></i></div>
+        <span class="sv-trend t-up"><i class="bi bi-arrow-up"></i> {{ pending_orders }} pending</span>
+      </div>
+      <div class="sv-val">{{ total_ebook_orders }}</div>
+      <div class="sv-lbl">eBook Orders</div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6">
+    <div class="stat-v2 sv-sky">
+      <div class="sv-top">
+        <div class="sv-icon c-sky"><i class="bi bi-briefcase"></i></div>
+        <span class="sv-trend t-info"><i class="bi bi-check2-circle"></i> Live</span>
+      </div>
+      <div class="sv-val">{{ total_services }}</div>
+      <div class="sv-lbl">Active Services</div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="panel mb-4">
+  <div class="panel-body">
+    <div class="panel-hdr"><div class="panel-title">Quick Actions</div></div>
+    <div class="qa-grid">
+      <a href="/services/add/" class="qa-item"><div class="qa-ic"><i class="bi bi-briefcase-fill"></i></div><span class="qa-lbl">Add Service</span></a>
+      <a href="/dashboard/admin/services/" class="qa-item"><div class="qa-ic"><i class="bi bi-calendar2-plus"></i></div><span class="qa-lbl">Add Schedule</span></a>
+      <a href="/blogs/add/" class="qa-item"><div class="qa-ic"><i class="bi bi-newspaper"></i></div><span class="qa-lbl">New Blog Post</span></a>
+      <a href="/testimonials/add/" class="qa-item"><div class="qa-ic"><i class="bi bi-chat-quote-fill"></i></div><span class="qa-lbl">Add Testimonial</span></a>
+      <a href="/careers/add/" class="qa-item"><div class="qa-ic"><i class="bi bi-people-fill"></i></div><span class="qa-lbl">Post Job</span></a>
+      <a href="/ebooks/add/" class="qa-item"><div class="qa-ic"><i class="bi bi-book-fill"></i></div><span class="qa-lbl">Add eBook</span></a>
+    </div>
+  </div>
+</div>
+
+<!-- Main data row -->
+<div class="row g-3 mb-4">
+  <!-- Bookings table -->
+  <div class="col-lg-7">
+    <div class="panel h-100">
+      <div class="panel-body">
+        <div class="panel-hdr">
+          <div class="panel-title">Recent Bookings</div>
+          <a href="/dashboard/admin/bookings/" class="panel-link">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+      {% if recent_bookings %}
+      <div class="table-responsive">
+        <table class="mod-table">
+          <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+          {% for b in recent_bookings %}
+          <tr>
+            <td>
+              <div class="cli-cell">
+                <div class="cli-av">{{ b.client.first_name|first|upper|default:b.client.username|first|upper }}</div>
+                <div>
+                  <div class="cli-name">{{ b.client.get_full_name|default:b.client.username }}</div>
+                  <div class="cli-email">{{ b.client.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td style="font-size:.8rem;color:#4A5D8A;font-weight:600;">{{ b.service.name|truncatechars:22 }}</td>
+            <td style="font-size:.78rem;color:#8C92AC;white-space:nowrap;"><i class="bi bi-calendar3 me-1"></i>{{ b.date|date:"M j, Y" }}</td>
+            <td><span class="badge status-badge-{{ b.status }}" style="font-size:.69rem;">{{ b.get_status_display }}</span></td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="panel-body pt-0 text-center text-muted" style="font-size:.85rem;padding-bottom:2rem;">
+        <i class="bi bi-calendar-x d-block mb-2" style="font-size:2rem;opacity:.3;"></i>No bookings yet
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="col-lg-5 d-flex flex-column gap-3">
+    <!-- Mini stats -->
+    <div class="row g-2">
+      <div class="col-6">
+        <div class="mini-stat">
+          <div class="mini-stat-body">
+            <div><div class="mini-val">{{ total_blogs }}</div><div class="mini-lbl">Blog Posts</div></div>
+            <div class="mini-ic"><i class="bi bi-newspaper"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="mini-stat">
+          <div class="mini-stat-body">
+            <div><div class="mini-val">{{ total_jobs }}</div><div class="mini-lbl">Open Roles</div></div>
+            <div class="mini-ic"><i class="bi bi-people"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent orders feed -->
+    <div class="panel flex-grow-1">
+      <div class="panel-body">
+        <div class="panel-hdr">
+          <div class="panel-title">Recent Orders</div>
+          <a href="/dashboard/admin/ebooks/" class="panel-link">View all <i class="bi bi-arrow-right"></i></a>
+        </div>
+        {% if recent_orders %}
+        <div class="act-list">
+          {% for o in recent_orders %}
+          <div class="act-item">
+            <div class="act-dot {% if o.status == 'confirmed' or o.status == 'delivered' %}d-ok{% elif o.status == 'pending' %}d-ord{% else %}d-def{% endif %}">
+              <i class="bi bi-book"></i>
+            </div>
+            <div class="act-body">
+              <div class="act-text"><strong>{{ o.client.get_full_name|default:o.client.username }}</strong> ordered <em>{{ o.ebook.title|truncatechars:26 }}</em></div>
+              <div class="act-meta">
+                <span class="act-time"><i class="bi bi-clock me-1"></i>{{ o.ordered_at|date:"M j, g:i A" }}</span>
+                <span class="badge status-badge-{{ o.status }}" style="font-size:.66rem;">${{ o.total_price }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center text-muted" style="font-size:.83rem;padding:1.5rem 0;">
+          <i class="bi bi-bag-x d-block mb-2" style="font-size:1.8rem;opacity:.3;"></i>No orders yet
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmed callout -->
+{% if confirmed_bookings %}
+<div class="callout-bar">
+  <div class="d-flex align-items-center gap-3">
+    <div class="callout-ic"><i class="bi bi-calendar-check"></i></div>
+    <div>
+      <div style="font-weight:700;color:#0F1E40;font-size:.9rem;">
+        <strong style="color:#1B3673;">{{ confirmed_bookings }}</strong> confirmed appointment{{ confirmed_bookings|pluralize }} upcoming
+      </div>
+      <div style="font-size:.76rem;color:#8C92AC;">Make sure your schedule is ready.</div>
+    </div>
+  </div>
+  <a href="/dashboard/admin/bookings/?status=confirmed" class="wb-btn-gold" style="font-size:.78rem;">
+    <i class="bi bi-eye"></i> View Confirmed
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

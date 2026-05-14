@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}{{ service.name }} – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <h1 class="page-title">{{ service.name }}</h1>
+    </div>
+</div>
+<section class="py-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="glass-card p-5">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="sc-icon-wrap me-3"><i class="bi {{ service.icon|default:'bi-briefcase' }} sc-icon"></i></div>
+                        <div>
+                            <h2>{{ service.name }}</h2>
+                            <span class="badge bg-primary">${{ service.price }}</span>
+                            <span class="badge bg-secondary ms-2">{{ service.duration_display }}</span>
+                        </div>
+                    </div>
+                    <p class="section-body">{{ service.description }}</p>
+                    <a href="/bookings/book/?service={{ service.pk }}" class="btn scalora-btn-primary mt-3">Book This Service</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

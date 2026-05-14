@@ -1,0 +1,450 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}My Orders – Scalora{% endblock %}
+{% block page_title %}My eBook Orders{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+  .sco-wrap {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--color-text-primary);
+    padding-bottom: 3rem;
+  }
+
+  /* ── Header ── */
+  .sco-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .sco-header-left h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 400;
+    margin: 0 0 0.2rem;
+    line-height: 1.2;
+  }
+  .sco-header-left p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+  .sco-store-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.6rem 1.25rem;
+    background: #d4a84b;
+    color: #1a1000;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .sco-store-btn:hover {
+    background: #e0b85a;
+    color: #1a1000;
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+  .sco-store-btn i { font-size: 14px; }
+
+  /* ── Filter pills ── */
+  .sco-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .sco-filter {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .sco-filter:hover, .sco-filter.active {
+    border-color: rgba(196,154,56,0.5);
+    background: rgba(212,168,75,0.08);
+    color: #b08830;
+  }
+
+  /* ── Panel ── */
+  .sco-panel {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  /* ── Table ── */
+  .sco-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .sco-table thead th {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    padding: 1rem 1.25rem 0.85rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    background: var(--color-background-secondary);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .sco-table tbody tr {
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    transition: background 0.12s;
+  }
+  .sco-table tbody tr:last-child { border-bottom: none; }
+  .sco-table tbody tr:hover { background: var(--color-background-secondary); }
+  .sco-table td {
+    padding: 0.9rem 1.25rem;
+    vertical-align: middle;
+    color: var(--color-text-primary);
+  }
+
+  /* ── ID chip ── */
+  .sco-id {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ── eBook cell ── */
+  .sco-ebook-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(212,168,75,0.1);
+    border: 0.5px solid rgba(196,154,56,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #c49a38;
+    flex-shrink: 0;
+  }
+  .sco-ebook-title {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    font-size: 13.5px;
+    line-height: 1.3;
+  }
+
+  /* ── Qty badge ── */
+  .sco-qty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+
+  /* ── Price ── */
+  .sco-price {
+    font-weight: 500;
+    color: #b08830;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ── Date ── */
+  .sco-date {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* ── Status badges ── */
+  .sco-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .sco-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sco-badge.paid, .sco-badge.completed {
+    background: rgba(40,160,90,0.1);
+    color: #1a7a40;
+  }
+  .sco-badge.paid::before, .sco-badge.completed::before { background: #28a05a; }
+  .sco-badge.pending {
+    background: rgba(186,117,23,0.1);
+    color: #7a5010;
+  }
+  .sco-badge.pending::before { background: #ba7517; }
+  .sco-badge.processing {
+    background: rgba(55,138,221,0.1);
+    color: #185fa5;
+  }
+  .sco-badge.processing::before { background: #378add; }
+  .sco-badge.refunded, .sco-badge.cancelled {
+    background: rgba(226,75,74,0.08);
+    color: #a32d2d;
+  }
+  .sco-badge.refunded::before, .sco-badge.cancelled::before { background: #e24b4a; }
+
+  /* ── Action buttons ── */
+  .sco-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .sco-btn-receipt {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 0.5px solid rgba(196,154,56,0.35);
+    background: rgba(212,168,75,0.07);
+    color: #b08830;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .sco-btn-receipt:hover {
+    background: rgba(212,168,75,0.14);
+    border-color: rgba(196,154,56,0.55);
+    color: #c49a38;
+    text-decoration: none;
+  }
+  .sco-btn-receipt i { font-size: 12px; }
+
+  /* ── Empty state ── */
+  .sco-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+  .sco-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: rgba(212,168,75,0.1);
+    border: 0.5px solid rgba(196,154,56,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-size: 22px;
+    color: #c49a38;
+  }
+  .sco-empty h5 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+  }
+  .sco-empty p {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ── Mobile cards ── */
+  @media (max-width: 640px) {
+    .sco-table-wrap { display: none; }
+    .sco-card-list { display: flex !important; flex-direction: column; gap: 0.75rem; padding: 1rem; }
+  }
+  @media (min-width: 641px) {
+    .sco-card-list { display: none; }
+  }
+  .sco-order-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 12px;
+    padding: 1rem;
+    background: var(--color-background-secondary);
+  }
+  .sco-order-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .sco-order-card-meta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.75rem;
+    align-items: center;
+  }
+  .sco-order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 0.5px solid var(--color-border-tertiary);
+  }
+</style>
+
+<div class="sco-wrap">
+
+  <!-- Header -->
+  <div class="sco-header">
+    <div class="sco-header-left">
+      <h2>Order History</h2>
+      <p>All your eBook purchases, in one place.</p>
+    </div>
+    <a href="/ebooks/" class="sco-store-btn">
+      <i class="bi bi-shop"></i>
+      Browse Store
+    </a>
+  </div>
+
+  <!-- Filter pills -->
+  <div class="sco-filters">
+    <span class="sco-filter active">All orders</span>
+    <span class="sco-filter">Paid</span>
+    <span class="sco-filter">Pending</span>
+    <span class="sco-filter">Processing</span>
+    <span class="sco-filter">Refunded</span>
+  </div>
+
+  <!-- Panel -->
+  <div class="sco-panel">
+
+    {% if orders %}
+
+    <!-- Desktop table -->
+    <div class="sco-table-wrap">
+      <div class="table-responsive">
+        <table class="sco-table">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>eBook</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in orders %}
+            <tr>
+              <td><span class="sco-id">#{{ o.pk }}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="sco-ebook-icon"><i class="bi bi-book"></i></div>
+                  <span class="sco-ebook-title">{{ o.ebook.title|truncatechars:32 }}</span>
+                </div>
+              </td>
+              <td><span class="sco-qty">{{ o.quantity }}</span></td>
+              <td><span class="sco-price">${{ o.total_price }}</span></td>
+              <td><span class="sco-date">{{ o.ordered_at|date:"M j, Y" }}</span></td>
+              <td><span class="sco-badge {{ o.status }}">{{ o.get_status_display }}</span></td>
+              <td>
+                <div class="sco-actions">
+                  <a href="/ebooks/order/{{ o.pk }}/receipt/" class="sco-btn-receipt">
+                    <i class="bi bi-receipt"></i> Receipt
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="sco-card-list">
+      {% for o in orders %}
+      <div class="sco-order-card">
+        <div class="sco-order-card-top">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+            <div class="sco-ebook-icon" style="flex-shrink:0;"><i class="bi bi-book"></i></div>
+            <div>
+              <div class="sco-ebook-title">{{ o.ebook.title|truncatechars:30 }}</div>
+              <span class="sco-id" style="margin-top:4px;display:inline-block;">#{{ o.pk }}</span>
+            </div>
+          </div>
+          <span class="sco-badge {{ o.status }}">{{ o.get_status_display }}</span>
+        </div>
+        <div class="sco-order-card-meta">
+          <span><i class="bi bi-calendar3" style="font-size:11px;"></i> {{ o.ordered_at|date:"M j, Y" }}</span>
+          <span><i class="bi bi-box" style="font-size:11px;"></i> Qty {{ o.quantity }}</span>
+        </div>
+        <div class="sco-order-card-footer">
+          <span class="sco-price" style="font-size:15px;">${{ o.total_price }}</span>
+          <a href="/ebooks/order/{{ o.pk }}/receipt/" class="sco-btn-receipt">
+            <i class="bi bi-receipt"></i> Receipt
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+
+    <!-- Empty state -->
+    <div class="sco-empty">
+      <div class="sco-empty-icon">
+        <i class="bi bi-bag-x"></i>
+      </div>
+      <h5>No orders yet</h5>
+      <p>Your purchased eBooks will appear here once you place an order.</p>
+      <a href="/ebooks/" class="sco-store-btn">
+        <i class="bi bi-shop"></i>
+        Browse eBooks
+      </a>
+    </div>
+
+    {% endif %}
+
+  </div>
+
+</div>
+
+<script>
+  document.querySelectorAll('.sco-filter').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.sco-filter').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+    });
+  });
+</script>
+
+{% endblock %}

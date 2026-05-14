@@ -1,0 +1,483 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Manage Services – Scalora{% endblock %}
+{% block page_title %}Services & Schedule{% endblock %}
+
+{% block content %}
+<style>
+/* ── Services Admin ── */
+.sv-page-header {
+  display:flex;align-items:flex-start;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;
+}
+.sv-page-title { font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:700;color:#0F1E40;margin:0 0 .2rem; }
+.sv-page-sub { font-size:.82rem;color:#8C92AC;margin:0; }
+.sv-add-btn {
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:linear-gradient(135deg,#1B3673,#4A5D8A);
+  color:#fff!important;border:none;border-radius:11px;
+  font-size:.82rem;font-weight:700;padding:.6rem 1.25rem;
+  text-decoration:none;transition:all .2s;box-shadow:0 3px 12px rgba(27,54,115,.25);
+}
+.sv-add-btn:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,54,115,.35); }
+
+/* Stats */
+.sv-stats { display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.75rem; }
+.sv-stat {
+  flex:1;min-width:130px;background:#fff;border:1px solid rgba(27,54,115,.09);
+  border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 1px 8px rgba(15,30,64,.05);
+  display:flex;align-items:center;gap:.85rem;
+}
+.sv-stat-ic { width:38px;height:38px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1rem; }
+.sv-stat-ic.c-blue  { background:rgba(27,54,115,.1);color:#1B3673; }
+.sv-stat-ic.c-gold  { background:rgba(201,179,126,.15);color:#a8913e; }
+.sv-stat-ic.c-green { background:rgba(16,185,129,.1);color:#059669; }
+.sv-stat-ic.c-sky   { background:rgba(59,130,246,.1);color:#2563eb; }
+.sv-stat-val { font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#0F1E40;line-height:1; }
+.sv-stat-lbl { font-size:.71rem;color:#8C92AC;font-weight:600;margin-top:.15rem; }
+
+/* Panel */
+.sv-panel { background:#fff;border:1px solid rgba(27,54,115,.08);border-radius:18px;box-shadow:0 2px 16px rgba(15,30,64,.05);overflow:hidden;margin-bottom:1.5rem; }
+.sv-panel-header { display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;border-bottom:1px solid rgba(27,54,115,.07);flex-wrap:wrap;gap:.75rem; }
+.sv-panel-title { font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#0F1E40;display:flex;align-items:center;gap:.45rem; }
+.sv-panel-title::before { content:'';width:7px;height:7px;border-radius:50%;background:#c9b37e;flex-shrink:0; }
+
+/* Services table */
+.sv-table { width:100%;border-collapse:separate;border-spacing:0; }
+.sv-table thead th {
+  font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:#8C92AC;padding:.8rem 1.25rem;border-bottom:1px solid rgba(27,54,115,.07);white-space:nowrap;
+}
+.sv-table tbody td { padding:.9rem 1.25rem;font-size:.84rem;color:#374151;border-bottom:1px solid rgba(27,54,115,.05);vertical-align:middle; }
+.sv-table tbody tr:last-child td { border-bottom:none; }
+.sv-table tbody tr:hover td { background:rgba(27,54,115,.018); }
+.sv-icon-cell { display:flex;align-items:center;gap:.65rem; }
+.sv-icon-badge { width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,rgba(27,54,115,.08),rgba(201,179,126,.1));display:flex;align-items:center;justify-content:center;font-size:.95rem;color:#1B3673;flex-shrink:0; }
+.sv-svc-name { font-weight:700;color:#0F1E40;font-size:.85rem; }
+.sv-price { font-family:'Playfair Display',serif;font-weight:700;color:#c9b37e;font-size:.95rem; }
+.sv-dur-chip { display:inline-flex;align-items:center;gap:.3rem;background:rgba(27,54,115,.06);color:#4A5D8A;border-radius:7px;padding:.2rem .6rem;font-size:.74rem;font-weight:600; }
+.sv-status-badge { display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:50px; }
+.sv-status-badge-dot { width:6px;height:6px;border-radius:50%; }
+.sv-status-badge.active   { background:rgba(16,185,129,.12);color:#065f46; }
+.sv-status-badge.active .sv-status-badge-dot { background:#10b981; }
+.sv-status-badge.inactive { background:rgba(140,146,172,.12);color:#4b5563; }
+.sv-status-badge.inactive .sv-status-badge-dot { background:#8C92AC; }
+.sv-action-btn { height:30px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:700;padding:0 .75rem;text-decoration:none;transition:all .18s; }
+.sv-action-btn.edit  { background:rgba(201,179,126,.12);color:#a8913e; }
+.sv-action-btn.edit:hover  { background:#c9b37e;color:#0F1E40; }
+.sv-action-btn.del   { background:rgba(239,68,68,.07);color:#dc2626; }
+.sv-action-btn.del:hover   { background:#dc2626;color:#fff; }
+
+/* ── Schedule Section ── */
+.sch-layout { display:grid;grid-template-columns:360px 1fr;gap:1.5rem; }
+@media(max-width:991px){ .sch-layout { grid-template-columns:1fr; } }
+
+/* Add slot form */
+.sch-form-card { background:#fff;border:1px solid rgba(27,54,115,.08);border-radius:18px;box-shadow:0 2px 16px rgba(15,30,64,.05);overflow:hidden; }
+.sch-form-header { background:linear-gradient(135deg,#0F1E40,#1B3673);padding:1.1rem 1.5rem;display:flex;align-items:center;gap:.6rem; }
+.sch-form-header-title { font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;color:#fff;display:flex;align-items:center;gap:.45rem; }
+.sch-form-header-title i { color:#c9b37e;font-size:1rem; }
+.sch-form-body { padding:1.4rem; }
+.sch-field { margin-bottom:1rem; }
+.sch-label { font-size:.76rem;font-weight:700;color:#1B3673;margin-bottom:.38rem;display:flex;align-items:center;gap:.3rem; }
+.sch-label i { color:#c9b37e;font-size:.8rem; }
+.sch-input {
+  width:100%;background:rgba(27,54,115,.03);border:1.5px solid rgba(27,54,115,.12);
+  border-radius:10px;padding:.6rem .9rem;font-size:.85rem;
+  font-family:'DM Sans',sans-serif;color:#0F1E40;outline:none;transition:all .2s;
+}
+.sch-input:focus { border-color:#c9b37e;box-shadow:0 0 0 3px rgba(201,179,126,.12); }
+.sch-time-row { display:grid;grid-template-columns:1fr 1fr;gap:.75rem; }
+.sch-submit-btn {
+  width:100%;padding:.7rem;background:linear-gradient(135deg,#1B3673,#4A5D8A);
+  border:none;border-radius:11px;color:#fff;font-size:.85rem;font-weight:700;
+  cursor:pointer;transition:all .2s;box-shadow:0 3px 12px rgba(27,54,115,.25);
+  display:flex;align-items:center;justify-content:center;gap:.45rem;
+}
+.sch-submit-btn:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,54,115,.35); }
+
+/* Slot note */
+.sch-slot-note {
+  background:rgba(201,179,126,.08);border:1px solid rgba(201,179,126,.2);
+  border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;
+  font-size:.76rem;color:#5a6678;display:flex;align-items:flex-start;gap:.5rem;
+}
+.sch-slot-note i { color:#c9b37e;flex-shrink:0;margin-top:.05rem; }
+
+/* Schedule list */
+.sch-list-card { background:#fff;border:1px solid rgba(27,54,115,.08);border-radius:18px;box-shadow:0 2px 16px rgba(15,30,64,.05);overflow:hidden; }
+.sch-list-header { display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.5rem;border-bottom:1px solid rgba(27,54,115,.07);flex-wrap:wrap;gap:.75rem; }
+.sch-list-title { font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#0F1E40;display:flex;align-items:center;gap:.45rem; }
+.sch-list-title::before { content:'';width:7px;height:7px;border-radius:50%;background:#c9b37e;flex-shrink:0; }
+
+/* Day group */
+.sch-day-group { border-bottom:1px solid rgba(27,54,115,.06); }
+.sch-day-group:last-child { border-bottom:none; }
+.sch-day-header {
+  display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;
+  background:rgba(27,54,115,.02);cursor:pointer;transition:background .15s;
+  user-select:none;
+}
+.sch-day-header:hover { background:rgba(27,54,115,.04); }
+.sch-day-date { font-weight:700;font-size:.85rem;color:#0F1E40; }
+.sch-day-dow { font-size:.72rem;color:#8C92AC;font-weight:600; }
+.sch-day-count {
+  margin-left:auto;display:flex;align-items:center;gap:.4rem;
+  font-size:.72rem;color:#8C92AC;font-weight:600;
+}
+.sch-day-chevron { font-size:.75rem;color:#8C92AC;transition:transform .2s; }
+.sch-day-group.open .sch-day-chevron { transform:rotate(180deg); }
+.sch-day-group.open .sch-day-header { background:rgba(27,54,115,.03); }
+
+/* Slot rows */
+.sch-slots { display:none;flex-direction:column; }
+.sch-day-group.open .sch-slots { display:flex; }
+.sch-slot-row {
+  display:flex;align-items:center;gap:1rem;padding:.7rem 1.5rem .7rem 2.5rem;
+  border-top:1px solid rgba(27,54,115,.04);transition:background .15s;
+  flex-wrap:wrap;
+}
+.sch-slot-row:hover { background:rgba(27,54,115,.018); }
+.sch-slot-time { display:flex;align-items:center;gap:.4rem;font-size:.83rem;font-weight:700;color:#0F1E40;min-width:160px; }
+.sch-slot-time i { color:#c9b37e;font-size:.85rem; }
+.sch-slot-sep { font-size:.72rem;color:#8C92AC; }
+.sch-slot-avail-badge { display:inline-flex;align-items:center;gap:.28rem;font-size:.7rem;font-weight:700;padding:.22rem .65rem;border-radius:50px; }
+.sch-slot-avail-badge.avail   { background:rgba(16,185,129,.1);color:#065f46; }
+.sch-slot-avail-badge.avail .sch-badge-dot { background:#10b981; }
+.sch-slot-avail-badge.blocked { background:rgba(239,68,68,.08);color:#7f1d1d; }
+.sch-slot-avail-badge.blocked .sch-badge-dot { background:#ef4444; }
+.sch-badge-dot { width:5px;height:5px;border-radius:50%; }
+.sch-booking-bar { flex:1;min-width:120px; }
+.sch-bar-label { display:flex;justify-content:space-between;font-size:.68rem;color:#8C92AC;margin-bottom:.25rem; }
+.sch-bar-track { height:4px;background:rgba(27,54,115,.08);border-radius:4px;overflow:hidden; }
+.sch-bar-fill  { height:100%;background:linear-gradient(90deg,#1B3673,#4A5D8A);border-radius:4px;transition:width .4s ease; }
+.sch-bar-fill.full { background:linear-gradient(90deg,#ef4444,#dc2626); }
+.sch-slot-actions { display:flex;gap:.35rem;flex-shrink:0; }
+.sch-slot-btn {
+  height:28px;border-radius:8px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:.3rem;font-size:.73rem;font-weight:700;
+  padding:0 .7rem;text-decoration:none;transition:all .18s;white-space:nowrap;
+}
+.sch-slot-btn.toggle-on  { background:rgba(245,158,11,.1);color:#d97706; }
+.sch-slot-btn.toggle-on:hover  { background:#f59e0b;color:#fff; }
+.sch-slot-btn.toggle-off { background:rgba(16,185,129,.1);color:#059669; }
+.sch-slot-btn.toggle-off:hover { background:#10b981;color:#fff; }
+.sch-slot-btn.del-btn    { background:rgba(239,68,68,.07);color:#dc2626; }
+.sch-slot-btn.del-btn:hover    { background:#dc2626;color:#fff; }
+.sch-slot-notes { font-size:.72rem;color:#8C92AC;font-style:italic;margin-left:auto; }
+
+/* Filter bar */
+.sch-filter-bar { display:flex;gap:.35rem;background:rgba(27,54,115,.03);border-radius:9px;padding:.25rem; }
+.sch-tab { padding:.28rem .75rem;border-radius:7px;font-size:.72rem;font-weight:700;color:#8C92AC;border:none;background:none;cursor:pointer;transition:all .18s; }
+.sch-tab:hover { color:#1B3673;background:rgba(27,54,115,.06); }
+.sch-tab.active { background:linear-gradient(135deg,#1B3673,#4A5D8A);color:#fff;box-shadow:0 2px 8px rgba(27,54,115,.22); }
+.sch-tab.act-avail   { background:linear-gradient(135deg,#059669,#047857); }
+.sch-tab.act-blocked { background:linear-gradient(135deg,#dc2626,#b91c1c); }
+
+/* Empty */
+.sv-empty { text-align:center;padding:2.5rem 1rem; }
+.sv-empty i { font-size:2rem;color:rgba(27,54,115,.18);display:block;margin-bottom:.5rem; }
+.sv-empty p { font-size:.83rem;color:#8C92AC;margin:0; }
+</style>
+
+<!-- Page header -->
+<div class="sv-page-header">
+  <div>
+    <h1 class="sv-page-title">Services & Schedule</h1>
+    <p class="sv-page-sub">Manage your service catalog and control your booking availability</p>
+  </div>
+  <a href="/services/add/" class="sv-add-btn"><i class="bi bi-plus-lg"></i> Add Service</a>
+</div>
+
+<!-- Stats -->
+<div class="sv-stats">
+  <div class="sv-stat">
+    <div class="sv-stat-ic c-blue"><i class="bi bi-briefcase-fill"></i></div>
+    <div><div class="sv-stat-val">{{ services|length }}</div><div class="sv-stat-lbl">Total Services</div></div>
+  </div>
+  <div class="sv-stat">
+    <div class="sv-stat-ic c-green"><i class="bi bi-check-circle-fill"></i></div>
+    <div>
+      <div class="sv-stat-val">{% for s in services %}{% if s.is_active %}{% with c=forloop.counter %}{% endwith %}{% endif %}{% endfor %}{{ services|length }}</div>
+      <div class="sv-stat-lbl">Active Services</div>
+    </div>
+  </div>
+  <div class="sv-stat">
+    <div class="sv-stat-ic c-gold"><i class="bi bi-calendar2-week-fill"></i></div>
+    <div><div class="sv-stat-val">{{ schedules|length }}</div><div class="sv-stat-lbl">Schedule Slots</div></div>
+  </div>
+  <div class="sv-stat">
+    <div class="sv-stat-ic c-sky"><i class="bi bi-clock-fill"></i></div>
+    <div><div class="sv-stat-val">30m</div><div class="sv-stat-lbl">Slot Interval</div></div>
+  </div>
+</div>
+
+<!-- ── Services Panel ── -->
+<div class="sv-panel">
+  <div class="sv-panel-header">
+    <div class="sv-panel-title">Service Catalog</div>
+    <a href="/services/" target="_blank" style="font-size:.75rem;color:#8C92AC;text-decoration:none;display:flex;align-items:center;gap:.3rem;">
+      <i class="bi bi-box-arrow-up-right"></i> View Public Page
+    </a>
+  </div>
+  {% if services %}
+  <div class="table-responsive">
+    <table class="sv-table">
+      <thead><tr><th>Service</th><th>Price</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for s in services %}
+      <tr>
+        <td>
+          <div class="sv-icon-cell">
+            <div class="sv-icon-badge"><i class="bi {{ s.icon|default:'bi-briefcase' }}"></i></div>
+            <div>
+              <div class="sv-svc-name">{{ s.name }}</div>
+              <div style="font-size:.72rem;color:#8C92AC;margin-top:.1rem;">{{ s.description|truncatechars:45 }}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="sv-price">${{ s.price }}</span></td>
+        <td><span class="sv-dur-chip"><i class="bi bi-clock" style="color:#c9b37e;font-size:.78rem;"></i>{{ s.duration_display }}</span></td>
+        <td>
+          <span class="sv-status-badge {% if s.is_active %}active{% else %}inactive{% endif %}">
+            <span class="sv-status-badge-dot"></span>
+            {% if s.is_active %}Active{% else %}Inactive{% endif %}
+          </span>
+        </td>
+        <td>
+          <div style="display:flex;gap:.4rem;">
+            <a href="/services/{{ s.pk }}/edit/" class="sv-action-btn edit"><i class="bi bi-pencil-fill"></i> Edit</a>
+            <a href="/services/{{ s.pk }}/delete/" class="sv-action-btn del"><i class="bi bi-trash3-fill"></i></a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="sv-empty">
+    <i class="bi bi-briefcase"></i>
+    <p>No services yet. <a href="/services/add/" style="color:#1B3673;font-weight:700;">Add your first service →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Schedule Section ── -->
+<div class="sch-layout">
+
+  <!-- Add Slot Form -->
+  <div>
+    <div class="sch-form-card">
+      <div class="sch-form-header">
+        <div class="sch-form-header-title">
+          <i class="bi bi-calendar-plus-fill"></i> Add Availability Slot
+        </div>
+      </div>
+      <div class="sch-form-body">
+        <div class="sch-slot-note">
+          <i class="bi bi-info-circle-fill"></i>
+          <div>Slots are split into <strong>30-minute intervals</strong>. The booking calendar on the public site shows each 30-min slot within your defined start–end window.</div>
+        </div>
+        <form method="POST" action="">
+          {% csrf_token %}
+          <div class="sch-field">
+            <label class="sch-label"><i class="bi bi-calendar3"></i>Date</label>
+            <input type="date" name="date" class="sch-input" min="{{ today_str }}" required>
+          </div>
+          <div class="sch-time-row">
+            <div class="sch-field">
+              <label class="sch-label"><i class="bi bi-sunrise-fill"></i>Start Time</label>
+              <input type="time" name="start_time" class="sch-input" required>
+            </div>
+            <div class="sch-field">
+              <label class="sch-label"><i class="bi bi-sunset-fill"></i>End Time</label>
+              <input type="time" name="end_time" class="sch-input" required>
+            </div>
+          </div>
+          <div id="slotPreview" style="display:none;background:rgba(27,54,115,.04);border:1px solid rgba(27,54,115,.1);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.78rem;color:#4A5D8A;">
+            <i class="bi bi-grid-3x3-gap me-1" style="color:#c9b37e;"></i>
+            <span id="slotPreviewText"></span>
+          </div>
+          <div class="sch-field">
+            <label class="sch-label"><i class="bi bi-chat-text"></i>Notes <span style="color:#8C92AC;font-weight:400;">(optional)</span></label>
+            <input type="text" name="notes" class="sch-input" placeholder="e.g. Morning block">
+          </div>
+          <button type="submit" class="sch-submit-btn">
+            <i class="bi bi-plus-circle-fill"></i> Add Schedule Slot
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule List -->
+  <div>
+    <div class="sch-list-card">
+      <div class="sch-list-header">
+        <div class="sch-list-title">Upcoming Availability</div>
+        <div class="sch-filter-bar" id="schFilters">
+          <button class="sch-tab active" data-filter="all">All</button>
+          <button class="sch-tab" data-filter="available">Available</button>
+          <button class="sch-tab" data-filter="blocked">Blocked</button>
+        </div>
+      </div>
+
+      {% if schedules %}
+        {% regroup schedules by date as day_groups %}
+        <div id="schList">
+        {% for day in day_groups %}
+          <div class="sch-day-group open" data-date="{{ day.grouper|date:'Y-m-d' }}">
+            <div class="sch-day-header">
+              <div>
+                <div class="sch-day-date">{{ day.grouper|date:"F j, Y" }}</div>
+                <div class="sch-day-dow">{{ day.grouper|date:"l" }}</div>
+              </div>
+              <div class="sch-day-count">
+                <i class="bi bi-calendar3" style="color:#c9b37e;"></i>
+                {{ day.list|length }} slot{{ day.list|length|pluralize }}
+              </div>
+              <i class="bi bi-chevron-down sch-day-chevron"></i>
+            </div>
+            <div class="sch-slots">
+            {% for slot in day.list %}
+              <div class="sch-slot-row" data-status="{% if slot.is_available %}available{% else %}blocked{% endif %}">
+                <!-- Time range -->
+                <div class="sch-slot-time">
+                  <i class="bi bi-clock-fill"></i>
+                  {{ slot.start_time|time:"g:i A" }}
+                  <span class="sch-slot-sep">→</span>
+                  {{ slot.end_time|time:"g:i A" }}
+                </div>
+
+                <!-- Status badge -->
+                <span class="sch-slot-avail-badge {% if slot.is_available %}avail{% else %}blocked{% endif %}">
+                  <span class="sch-badge-dot"></span>
+                  {% if slot.is_available %}Available{% else %}Blocked{% endif %}
+                </span>
+
+                <!-- Booking fill bar -->
+                {% if slot.is_available %}
+                <div class="sch-booking-bar">
+                  <div class="sch-bar-label">
+                    <span>Booked slots</span>
+                    <span>{{ slot.booking_count }}/{{ slot.slot_count }}</span>
+                  </div>
+                  <div class="sch-bar-track">
+                    {% if slot.slot_count > 0 %}
+                    <div class="sch-bar-fill {% if slot.booking_count >= slot.slot_count %}full{% endif %}"
+                         style="width: {% widthratio slot.booking_count slot.slot_count 100 %}%"></div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% else %}
+                <div style="flex:1;"></div>
+                {% endif %}
+
+                <!-- Notes -->
+                {% if slot.notes %}<span class="sch-slot-notes">{{ slot.notes }}</span>{% endif %}
+
+                <!-- Actions -->
+                <div class="sch-slot-actions">
+                  <form method="POST" action="/services/schedule/{{ slot.pk }}/toggle/" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="sch-slot-btn {% if slot.is_available %}toggle-on{% else %}toggle-off{% endif %}" title="{% if slot.is_available %}Block this slot{% else %}Mark as available{% endif %}">
+                      {% if slot.is_available %}<i class="bi bi-slash-circle"></i> Block{% else %}<i class="bi bi-check-circle"></i> Unblock{% endif %}
+                    </button>
+                  </form>
+                  <form method="POST" action="/services/schedule/{{ slot.pk }}/delete/" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="sch-slot-btn del-btn"
+                            onclick="return confirm('Remove this schedule slot?')"
+                            title="Delete slot">
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+      {% else %}
+      <div class="sv-empty" style="padding:3rem 1rem;">
+        <i class="bi bi-calendar-x"></i>
+        <p>No schedule slots added yet.<br>Use the form to add your first availability window.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  /* ── Collapsible day groups ── */
+  document.querySelectorAll('.sch-day-header').forEach(hdr => {
+    hdr.addEventListener('click', () => {
+      hdr.closest('.sch-day-group').classList.toggle('open');
+    });
+  });
+
+  /* ── Filter tabs ── */
+  const tabs = document.querySelectorAll('#schFilters .sch-tab');
+  const rows = document.querySelectorAll('.sch-slot-row');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active','act-avail','act-blocked'));
+      tab.classList.add('active');
+      const f = tab.dataset.filter;
+      if (f === 'available') tab.classList.add('act-avail');
+      if (f === 'blocked')   tab.classList.add('act-blocked');
+
+      rows.forEach(row => {
+        const show = f === 'all' || row.dataset.status === f;
+        row.style.display = show ? '' : 'none';
+      });
+
+      // Show/hide day groups with no visible rows
+      document.querySelectorAll('.sch-day-group').forEach(grp => {
+        const visibleRows = grp.querySelectorAll('.sch-slot-row:not([style*="display: none"])');
+        grp.style.display = visibleRows.length ? '' : 'none';
+      });
+    });
+  });
+
+  /* ── Slot preview ── */
+  const startInput = document.querySelector('input[name="start_time"]');
+  const endInput   = document.querySelector('input[name="end_time"]');
+  const preview    = document.getElementById('slotPreview');
+  const previewTxt = document.getElementById('slotPreviewText');
+
+  function updatePreview() {
+    const s = startInput.value, e = endInput.value;
+    if (!s || !e) { preview.style.display = 'none'; return; }
+
+    const [sh,sm] = s.split(':').map(Number);
+    const [eh,em] = e.split(':').map(Number);
+    const startMins = sh*60+sm, endMins = eh*60+em;
+    if (endMins <= startMins) { preview.style.display = 'none'; return; }
+
+    const totalSlots = Math.floor((endMins - startMins) / 30);
+    const slots = [];
+    for (let i = 0; i < totalSlots; i++) {
+      const m = startMins + i*30;
+      const h = Math.floor(m/60), min = m%60;
+      const ampm = h>=12?'PM':'AM', h12 = h%12||12;
+      slots.push(h12+':'+(min<10?'0':'')+min+' '+ampm);
+    }
+
+    if (slots.length === 0) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+    previewTxt.textContent = slots.length + ' available booking slot' + (slots.length!==1?'s':'') + ': ' + slots.join(', ');
+  }
+
+  startInput?.addEventListener('change', updatePreview);
+  endInput?.addEventListener('change',   updatePreview);
+})();
+</script>
+{% endblock %}

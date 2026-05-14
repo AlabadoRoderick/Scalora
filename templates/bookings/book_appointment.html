@@ -1,0 +1,738 @@
+{% extends 'base.html' %}
+
+{% block title %}Book an Appointment – Scalora{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ══════════════════════════════════════
+   Scalora Booking Calendar
+══════════════════════════════════════ */
+.scalora-calendar {
+  border: 1.5px solid rgba(27,54,115,0.13);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 5px 26px rgba(15,30,64,0.08);
+  max-width: 100%;
+}
+
+/* Header */
+.sc-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1B3673 0%, #0F1E40 100%);
+  padding: 0.85rem 1.15rem;
+}
+.sc-cal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+.sc-cal-nav {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.sc-cal-nav:hover  { background: rgba(201,179,126,0.35); }
+.sc-cal-nav:disabled { opacity: .3; cursor: default; }
+
+/* Day-of-week row */
+.sc-cal-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: rgba(27,54,115,0.035);
+  border-bottom: 1px solid rgba(27,54,115,0.07);
+  padding: 0 0.4rem;
+}
+.sc-cal-dow {
+  text-align: center;
+  padding: 0.42rem 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8C92AC;
+}
+.sc-cal-dow.wknd { color: rgba(201,179,126,0.8); }
+
+/* Day grid */
+.sc-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding: 0.55rem;
+  background: #fff;
+  min-height: 178px;
+}
+.sc-cal-loading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8C92AC;
+  font-size: 0.85rem;
+  padding: 2rem 0;
+}
+
+/* Individual day cell */
+.sc-day {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #d1d5db;
+  cursor: default;
+  transition: all .18s ease;
+  position: relative;
+  border: 1.5px solid transparent;
+}
+
+/* Filler cells for leading blanks */
+.sc-day.blank { pointer-events: none; }
+
+/* Past dates */
+.sc-day.past  { color: #e2e5ec; pointer-events: none; }
+
+/* Available date */
+.sc-day.avail {
+  color: #1B3673;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(27,54,115,0.05);
+  border-color: rgba(27,54,115,0.1);
+}
+.sc-day.avail:hover {
+  background: rgba(27,54,115,0.12);
+  border-color: rgba(27,54,115,0.25);
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(27,54,115,0.15);
+}
+/* Gold dot below available dates */
+.sc-day.avail::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px;
+  background: #c9b37e;
+  border-radius: 50%;
+}
+
+/* Today ring */
+.sc-day.today:not(.past) {
+  font-weight: 800;
+}
+.sc-day.today.avail {
+  border-color: rgba(201,179,126,0.5);
+}
+
+/* Selected */
+.sc-day.selected {
+  background: linear-gradient(135deg, #1B3673, #4A5D8A) !important;
+  color: #fff !important;
+  border-color: #1B3673 !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 4px 14px rgba(27,54,115,0.3) !important;
+  font-weight: 700;
+}
+.sc-day.selected::after { background: rgba(255,255,255,0.7); }
+
+/* Legend */
+.sc-cal-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.35rem;
+  padding: 0.55rem 0.9rem 0.65rem;
+  border-top: 1px solid rgba(27,54,115,0.06);
+  background: #fff;
+}
+.sc-legend-item {
+  display: flex; align-items: center; gap: 0.38rem;
+  font-size: 0.7rem; color: #8C92AC; font-weight: 500;
+}
+.sc-legend-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.dot-avail { background: #1B3673; }
+.dot-sel   { background: linear-gradient(135deg, #1B3673, #4A5D8A); }
+.dot-none  { background: #e2e5ec; border: 1px solid #d1d5db; }
+
+/* Selected date pill shown above time slots */
+.sc-date-pill {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: rgba(27,54,115,0.06);
+  border: 1.5px solid rgba(27,54,115,0.14);
+  border-radius: 50px;
+  padding: 0.35rem 1rem;
+  font-size: 0.84rem; font-weight: 600; color: #1B3673;
+  margin-bottom: 0.9rem;
+}
+
+/* Time slot styling */
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.time-slot-btn {
+  background: rgba(27,54,115,0.05);
+  border: 1.5px solid rgba(27,54,115,0.15);
+  border-radius: 6px;
+  padding: 0.45rem 0.35rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  font-size: 0.75rem;
+  color: #1B3673;
+  font-weight: 600;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time-slot-btn:hover {
+  background: rgba(27,54,115,0.1);
+  border-color: rgba(27,54,115,0.3);
+  transform: translateY(-2px);
+}
+
+.time-slot-btn.active {
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff;
+  border-color: #1B3673;
+  box-shadow: 0 4px 12px rgba(27,54,115,0.25);
+}
+
+/* Booking form */
+.booking-step {
+  margin-bottom: 2rem;
+}
+
+.step-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1B3673;
+}
+
+.step-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.booking-info-panel .glass-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(27,54,115,0.1);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-key {
+  font-weight: 600;
+  color: #8C92AC;
+  font-size: 0.9rem;
+}
+
+.summary-val {
+  font-weight: 700;
+  color: #1B3673;
+  font-size: 0.95rem;
+}
+
+.booking-policy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.booking-policy-list li {
+  padding: 0.5rem 0;
+  color: #4B5563;
+  font-size: 0.9rem;
+}
+
+.booking-policy-list .bi {
+  color: #c9b37e;
+}
+
+.glass-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.text-gold {
+  color: #c9b37e;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.scalora-alert {
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.scalora-btn-primary {
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  transition: all .3s ease;
+}
+
+.scalora-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(27,54,115,0.3);
+}
+
+.scalora-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .time-slots-grid {
+    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+  }
+  
+  .time-slot-btn {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.3rem;
+    height: 36px;
+  }
+  
+  .step-label {
+    font-size: 0.95rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <div class="section-eyebrow">Schedule</div>
+        <h1 class="page-title">Book Your <span class="text-gold">Appointment</span></h1>
+        <p class="page-subtitle">Select your preferred service, date, and time slot</p>
+    </div>
+</div>
+
+<section class="py-section">
+    <div class="container">
+        <div class="row g-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="booking-form-card glass-card p-5">
+                    <form method="POST" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        <!-- Step 1: Service -->
+                        <div class="booking-step mb-5">
+                            <div class="step-label">
+                                <span class="step-num">1</span>
+                                <span>Choose Your Service</span>
+                            </div>
+                            {{ form.service }}
+                            {% if form.service.errors %}<div class="invalid-feedback d-block">{{ form.service.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <!-- Step 2: Calendar -->
+                        <div class="booking-step mb-5">
+                            <div class="step-label">
+                                <span class="step-num">2</span>
+                                <span>Select a Date</span>
+                            </div>
+
+                            <!-- Hidden input that actually submits the date -->
+                            <input type="hidden" name="date" id="booking-date-hidden">
+                            {% if form.date.errors %}<div class="invalid-feedback d-block">{{ form.date.errors.0 }}</div>{% endif %}
+
+                            <div class="scalora-calendar">
+                                <!-- Calendar header -->
+                                <div class="sc-cal-header">
+                                    <button type="button" class="sc-cal-nav" id="calPrev" aria-label="Previous month">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </button>
+                                    <span class="sc-cal-title" id="calMonthLabel">Loading…</span>
+                                    <button type="button" class="sc-cal-nav" id="calNext" aria-label="Next month">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Day-of-week labels -->
+                                <div class="sc-cal-dow-row">
+                                    <span class="sc-cal-dow wknd">Sun</span>
+                                    <span class="sc-cal-dow">Mon</span>
+                                    <span class="sc-cal-dow">Tue</span>
+                                    <span class="sc-cal-dow">Wed</span>
+                                    <span class="sc-cal-dow">Thu</span>
+                                    <span class="sc-cal-dow">Fri</span>
+                                    <span class="sc-cal-dow wknd">Sat</span>
+                                </div>
+
+                                <!-- Day grid – filled by JS -->
+                                <div class="sc-cal-grid" id="calGrid">
+                                    <div class="sc-cal-loading">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                                        Loading available dates…
+                                    </div>
+                                </div>
+
+                                <!-- Legend -->
+                                <div class="sc-cal-legend">
+                                    <span class="sc-legend-item">
+                                        <span class="sc-legend-dot dot-avail"></span>Available
+                                    </span>
+                                    <span class="sc-legend-item">
+                                        <span class="sc-legend-dot dot-sel"></span>Selected
+                                    </span>
+                                    <span class="sc-legend-item">
+                                        <span class="sc-legend-dot dot-none"></span>Unavailable
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Time Slot -->
+                        <div class="booking-step mb-5">
+                            <div class="step-label">
+                                <span class="step-num">3</span>
+                                <span>Choose a Time Slot</span>
+                            </div>
+                            <div id="time-slot-container">
+                                <div id="time-loading" class="d-none text-center py-3">
+                                    <div class="spinner-border text-primary spinner-border-sm me-2"></div>
+                                    Loading available slots...
+                                </div>
+                                <div id="time-slots-grid" class="time-slots-grid"></div>
+                                <input type="hidden" name="time_slot" id="time-slot-hidden">
+                                <div id="no-slots-msg" class="text-muted d-none">
+                                    <i class="bi bi-calendar-x me-2"></i>No available slots for this date. Please try another date.
+                                </div>
+                                <div id="select-date-msg" class="text-muted">
+                                    <i class="bi bi-calendar me-2"></i>Please select a date to see available time slots.
+                                </div>
+                            </div>
+                            {% if form.time_slot.errors %}<div class="invalid-feedback d-block">{{ form.time_slot.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <!-- Step 4: Notes -->
+                        <div class="booking-step mb-5">
+                            <div class="step-label">
+                                <span class="step-num">4</span>
+                                <span>Additional Notes (Optional)</span>
+                            </div>
+                            {{ form.notes }}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert scalora-alert alert-danger mb-4">{{ form.non_field_errors.0 }}</div>
+                        {% endif %}
+
+                        <button type="submit" class="btn scalora-btn-primary btn-lg w-100" id="submitBooking" disabled>
+                            <i class="bi bi-calendar-check me-2"></i>Confirm Appointment
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="booking-info-panel">
+                    <div class="glass-card p-4 mb-4">
+                        <h6 class="text-gold mb-3"><i class="bi bi-info-circle me-2"></i>Booking Summary</h6>
+                        <div id="booking-summary">
+                            <p class="text-muted">Select your service and date to see the summary.</p>
+                        </div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <h6 class="text-gold mb-3"><i class="bi bi-shield-check me-2"></i>Booking Policy</h6>
+                        <ul class="booking-policy-list">
+                            <li><i class="bi bi-check2 me-2"></i>Free cancellation up to 24h before</li>
+                            <!-- <li><i class="bi bi-check2 me-2"></i>Confirmation email sent instantly</li> -->
+                            <li><i class="bi bi-check2 me-2"></i>Reschedule anytime from dashboard</li>
+                            <li><i class="bi bi-check2 me-2"></i>All times in your local timezone</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  /* ── DOM ── */
+  const calGrid       = document.getElementById('calGrid');
+  const calLabel      = document.getElementById('calMonthLabel');
+  const calPrev       = document.getElementById('calPrev');
+  const calNext       = document.getElementById('calNext');
+  const hiddenDate    = document.getElementById('booking-date-hidden');
+  const timeHidden    = document.getElementById('time-slot-hidden');
+  const timeSlotsGrid = document.getElementById('time-slots-grid');
+  const timeLoading   = document.getElementById('time-loading');
+  const noSlotsMsg    = document.getElementById('no-slots-msg');
+  const selectDateMsg = document.getElementById('select-date-msg');
+  const submitBtn     = document.getElementById('submitBooking');
+  const serviceSelect = document.querySelector('[name="service"]');
+
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+
+  /* ── State ── */
+  const today = new Date(); today.setHours(0,0,0,0);
+  let viewYear  = today.getFullYear();
+  let viewMonth = today.getMonth();
+  let available = new Set();   // ISO strings with open slots this month
+  let selected  = null;        // ISO string of chosen date
+  let fetching  = false;
+
+  /* ── Pre-select service from URL ── */
+  const sp = new URLSearchParams(location.search).get('service');
+  if (sp && serviceSelect) serviceSelect.value = sp;
+
+  /* ══════════════════════════════
+     Fetch available dates for month
+  ══════════════════════════════ */
+  async function loadMonth(year, month) {
+    if (fetching) return;
+    fetching = true;
+    calGrid.innerHTML = `<div class="sc-cal-loading">
+      <div class="spinner-border spinner-border-sm text-primary me-2"></div>Loading…</div>`;
+
+    try {
+      const r = await fetch(`/services/api/available-dates/?year=${year}&month=${month + 1}`);
+      const d = await r.json();
+      available = new Set(d.dates || []);
+    } catch { available = new Set(); }
+
+    fetching = false;
+    renderGrid(year, month);
+  }
+
+  /* ══════════════════════════════
+     Render the day grid
+  ══════════════════════════════ */
+  function renderGrid(year, month) {
+    calLabel.textContent = `${MONTHS[month]} ${year}`;
+
+    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+    calPrev.disabled = isCurrentMonth;
+
+    const firstDow    = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayISO    = iso(today);
+
+    let html = '';
+    for (let i = 0; i < firstDow; i++) html += `<div class="sc-day blank"></div>`;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dt  = new Date(year, month, d);
+      const key = iso(dt);
+      let cls   = 'sc-day';
+
+      if (key === todayISO) cls += ' today';
+
+      if (dt < today)           cls += ' past';
+      else if (available.has(key)) cls += ' avail';
+
+      if (key === selected) cls += ' selected';
+
+      html += `<div class="${cls}" data-date="${key}">${d}</div>`;
+    }
+
+    calGrid.innerHTML = html;
+
+    calGrid.querySelectorAll('.sc-day.avail').forEach(el =>
+      el.addEventListener('click', () => pickDate(el.dataset.date))
+    );
+  }
+
+  /* ══════════════════════════════
+     Pick a date → load time slots
+  ══════════════════════════════ */
+  function pickDate(key) {
+    selected = key;
+    hiddenDate.value = key;
+    timeHidden.value = '';
+    submitBtn.disabled = true;
+
+    // Highlight in grid
+    calGrid.querySelectorAll('.sc-day').forEach(el =>
+      el.classList.toggle('selected', el.dataset.date === key)
+    );
+
+    // Show "selected date" pill above time slots
+    let pill = document.getElementById('sc-date-pill');
+    if (!pill) {
+      pill = document.createElement('div');
+      pill.id = 'sc-date-pill';
+      pill.className = 'sc-date-pill';
+      timeSlotsGrid.parentNode.insertBefore(pill, timeSlotsGrid);
+    }
+    const [y, m, d] = key.split('-');
+    pill.innerHTML = `<i class="bi bi-calendar-check text-gold"></i>
+      ${new Date(+y, +m-1, +d).toLocaleDateString('en-US',
+        {weekday:'long', month:'long', day:'numeric', year:'numeric'})}`;
+
+    fetchSlots(key);
+    updateSummary();
+  }
+
+  /* ══════════════════════════════
+     Fetch time slots for a date
+  ══════════════════════════════ */
+  async function fetchSlots(key) {
+    selectDateMsg.classList.add('d-none');
+    noSlotsMsg.classList.add('d-none');
+    timeLoading.classList.remove('d-none');
+    timeSlotsGrid.innerHTML = '';
+
+    try {
+      const r = await fetch(`/services/api/slots/?date=${key}`);
+      const d = await r.json();
+      timeLoading.classList.add('d-none');
+
+      if (d.slots?.length) {
+        d.slots.forEach(slot => {
+          const [h, m] = slot.split(':');
+          const hr   = parseInt(h);
+          const min  = parseInt(m);
+          const ampm = hr >= 12 ? 'PM' : 'AM';
+          const startLabel = `${hr % 12 || 12}:${m} ${ampm}`;
+
+          // Calculate end time (start + 30 min)
+          const totalMins = hr * 60 + min + 30;
+          const endHr   = Math.floor(totalMins / 60) % 24;
+          const endMin  = totalMins % 60;
+          const endAmpm = endHr >= 12 ? 'PM' : 'AM';
+          const endLabel = `${endHr % 12 || 12}:${String(endMin).padStart(2,'0')} ${endAmpm}`;
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'time-slot-btn';
+          btn.dataset.time = slot;
+          btn.textContent = `${startLabel} – ${endLabel}`;
+          btn.addEventListener('click', () => {
+            timeSlotsGrid.querySelectorAll('.time-slot-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            timeHidden.value = slot;
+            submitBtn.disabled = false;
+            updateSummary();
+          });
+          timeSlotsGrid.appendChild(btn);
+        });
+      } else {
+        noSlotsMsg.classList.remove('d-none');
+        // Mark this date as fully booked in the grid
+        available.delete(key);
+        const cell = calGrid.querySelector(`[data-date="${key}"]`);
+        if (cell) { cell.classList.remove('avail','selected'); cell.style.pointerEvents='none'; }
+      }
+    } catch {
+      timeLoading.classList.add('d-none');
+      noSlotsMsg.classList.remove('d-none');
+    }
+    updateSummary();
+  }
+
+  /* ══════════════════════════════
+     Booking summary panel
+  ══════════════════════════════ */
+  function updateSummary() {
+    const summaryDiv = document.getElementById('booking-summary');
+    if (!summaryDiv) return;
+    const svc  = serviceSelect?.options[serviceSelect.selectedIndex]?.text || '—';
+    const date = selected
+      ? (() => { const [y,m,d]=selected.split('-');
+          return new Date(+y,+m-1,+d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); })()
+      : '—';
+    const slot = timeHidden.value
+      ? (() => {
+          const [h,m] = timeHidden.value.split(':');
+          const hr = parseInt(h), min = parseInt(m);
+          const ampm = hr >= 12 ? 'PM' : 'AM';
+          const startLabel = `${hr%12||12}:${m} ${ampm}`;
+          const totalMins = hr*60 + min + 30;
+          const eHr = Math.floor(totalMins/60)%24, eMin = totalMins%60;
+          const eAmpm = eHr >= 12 ? 'PM' : 'AM';
+          const endLabel = `${eHr%12||12}:${String(eMin).padStart(2,'0')} ${eAmpm}`;
+          return `${startLabel} – ${endLabel}`;
+        })()
+      : '—';
+
+    summaryDiv.innerHTML = `
+      <div class="summary-item"><span class="summary-key">Service</span><span class="summary-val">${svc}</span></div>
+      <div class="summary-item"><span class="summary-key">Date</span><span class="summary-val">${date}</span></div>
+      <div class="summary-item"><span class="summary-key">Time</span><span class="summary-val">${slot}</span></div>`;
+  }
+
+  /* ── Helper: format Date → 'YYYY-MM-DD' ── */
+  function iso(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+
+  /* ── Navigation ── */
+  calPrev.addEventListener('click', () => {
+    if (calPrev.disabled) return;
+    if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
+    loadMonth(viewYear, viewMonth);
+  });
+  calNext.addEventListener('click', () => {
+    if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
+    loadMonth(viewYear, viewMonth);
+  });
+
+  serviceSelect?.addEventListener('change', updateSummary);
+
+  /* ── Boot ── */
+  loadMonth(viewYear, viewMonth);
+  updateSummary();
+})();
+</script>
+{% endblock %}

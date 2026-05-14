@@ -1,0 +1,582 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Testimonials – Scalora Admin{% endblock %}
+{% block page_title %}Testimonials{% endblock %}
+
+{% block content %}
+<style>
+/* ── Testimonials Admin ── */
+.tm-page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem; margin-bottom: 1.75rem;
+}
+.tm-page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 700; color: #0F1E40; margin: 0 0 .2rem;
+}
+.tm-page-sub { font-size: .82rem; color: #8C92AC; margin: 0; }
+.tm-add-btn {
+  display: inline-flex; align-items: center; gap: .45rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  color: #fff !important; border: none; border-radius: 11px;
+  font-size: .82rem; font-weight: 700; padding: .6rem 1.25rem;
+  text-decoration: none; transition: all .2s;
+  box-shadow: 0 3px 12px rgba(27,54,115,.25);
+}
+.tm-add-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,54,115,.35); }
+
+/* Stats */
+.tm-stats-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.75rem; }
+.tm-stat {
+  flex: 1; min-width: 130px; background: #fff;
+  border: 1px solid rgba(27,54,115,.09); border-radius: 14px;
+  padding: 1.1rem 1.3rem; box-shadow: 0 1px 8px rgba(15,30,64,.05);
+  display: flex; align-items: center; gap: .85rem;
+}
+.tm-stat-ic {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.tm-stat-ic.c-blue  { background: rgba(27,54,115,.1);  color: #1B3673; }
+.tm-stat-ic.c-gold  { background: rgba(201,179,126,.15); color: #a8913e; }
+.tm-stat-ic.c-green { background: rgba(16,185,129,.1);  color: #059669; }
+.tm-stat-ic.c-sky   { background: rgba(59,130,246,.1);  color: #2563eb; }
+.tm-stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: #0F1E40; line-height: 1; }
+.tm-stat-lbl { font-size: .71rem; color: #8C92AC; font-weight: 600; margin-top: .15rem; }
+
+/* Panel */
+.tm-panel {
+  background: #fff; border: 1px solid rgba(27,54,115,.08);
+  border-radius: 18px; box-shadow: 0 2px 16px rgba(15,30,64,.05); overflow: hidden;
+}
+.tm-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.07);
+  flex-wrap: wrap; gap: .75rem;
+}
+.tm-panel-title {
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #0F1E40;
+  display: flex; align-items: center; gap: .45rem;
+}
+.tm-panel-title::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: #c9b37e; flex-shrink: 0;
+}
+
+/* Toolbar */
+.tm-toolbar { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+.tm-search-wrap { position: relative; }
+.tm-search-input {
+  background: rgba(27,54,115,.04); border: 1.5px solid rgba(27,54,115,.12);
+  border-radius: 10px; padding: .4rem .85rem .4rem 2.3rem;
+  font-size: .79rem; font-family: 'DM Sans', sans-serif; color: #0F1E40;
+  outline: none; transition: all .2s; width: 200px;
+}
+.tm-search-input::placeholder { color: #8C92AC; }
+.tm-search-input:focus {
+  border-color: #c9b37e;
+  box-shadow: 0 0 0 3px rgba(201,179,126,.12); width: 240px;
+}
+.tm-search-icon {
+  position: absolute; left: .72rem; top: 50%; transform: translateY(-50%);
+  color: #8C92AC; font-size: .8rem; pointer-events: none;
+}
+.tm-filter-bar {
+  display: flex; gap: .3rem;
+  background: rgba(27,54,115,.03); border-radius: 9px; padding: .25rem;
+}
+.tm-tab {
+  padding: .28rem .78rem; border-radius: 7px; font-size: .72rem; font-weight: 700;
+  color: #8C92AC; border: none; background: none; cursor: pointer; transition: all .18s;
+}
+.tm-tab:hover { color: #1B3673; background: rgba(27,54,115,.06); }
+.tm-tab.active {
+  background: linear-gradient(135deg, #1B3673, #4A5D8A); color: #fff;
+  box-shadow: 0 2px 8px rgba(27,54,115,.22);
+}
+.tm-tab.act-vis { background: linear-gradient(135deg, #059669, #047857); }
+.tm-tab.act-hid { background: linear-gradient(135deg, #8C92AC, #6b7280); }
+.tm-count { font-size: .74rem; color: #8C92AC; font-weight: 600; white-space: nowrap; }
+
+/* Card grid */
+.tm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem; padding: 1.25rem 1.5rem;
+}
+
+/* Testimonial card */
+.tm-card {
+  background: rgba(27,54,115,.025); border: 1px solid rgba(27,54,115,.09);
+  border-radius: 16px; padding: 1.4rem;
+  display: flex; flex-direction: column; gap: .9rem;
+  transition: all .22s; position: relative; overflow: hidden;
+}
+.tm-card:hover {
+  border-color: rgba(201,179,126,.3);
+  box-shadow: 0 8px 28px rgba(15,30,64,.1);
+  transform: translateY(-3px);
+}
+.tm-card.hidden { display: none !important; }
+.tm-card::before {
+  content: '\\';
+  position: absolute; top: .4rem; right: 1rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem; line-height: 1;
+  color: rgba(201,179,126,.1); pointer-events: none;
+}
+
+/* Card top */
+.tm-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: .75rem;
+}
+.tm-avatar-wrap { display: flex; align-items: center; gap: .75rem; }
+.tm-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; font-weight: 700; color: #fff;
+  box-shadow: 0 3px 10px rgba(27,54,115,.2); overflow: hidden;
+}
+.tm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.tm-client-name { font-weight: 700; font-size: .9rem; color: #0F1E40; line-height: 1.2; }
+.tm-client-pos  { font-size: .73rem; color: #8C92AC; margin-top: .1rem; }
+
+/* Controls */
+.tm-controls { display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; flex-shrink: 0; }
+.tm-vis-badge {
+  font-size: .62rem; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+  padding: .2rem .6rem; border-radius: 6px;
+}
+.tm-vis-badge.active   { background: rgba(16,185,129,.12); color: #065f46; }
+.tm-vis-badge.inactive { background: rgba(140,146,172,.12); color: #4b5563; }
+.tm-action-btns { display: flex; gap: .35rem; }
+.tm-action-btn {
+  width: 28px; height: 28px; border-radius: 8px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; text-decoration: none; transition: all .18s;
+}
+.tm-action-btn.edit { background: rgba(201,179,126,.12); color: #a8913e; }
+.tm-action-btn.edit:hover { background: #c9b37e; color: #0F1E40; }
+.tm-action-btn.del  { background: rgba(239,68,68,.07); color: #dc2626; }
+.tm-action-btn.del:hover  { background: #dc2626; color: #fff; }
+
+/* Stars */
+.tm-stars { display: flex; gap: .2rem; }
+.tm-stars i { font-size: .82rem; }
+.tm-stars .filled { color: #c9b37e; }
+.tm-stars .empty  { color: #e2e5ec; }
+
+/* Message */
+.tm-message {
+  font-size: .84rem; 
+  color: #5a6678; 
+  line-height: 1.75; 
+  font-style: italic; 
+  flex: 1;
+  display: -webkit-box; 
+  -webkit-box-orient: vertical; 
+  overflow: hidden;
+}
+/* Footer */
+.tm-card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: .75rem; border-top: 1px solid rgba(27,54,115,.06);
+}
+.tm-rating-label { font-size: .7rem; color: #8C92AC; font-weight: 600; }
+.tm-rating-val   { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 700; color: #c9b37e; }
+
+/* ── Inline edit modal ── */
+.tm-modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(15,30,64,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity .22s;
+}
+.tm-modal-overlay.open { opacity: 1; pointer-events: all; }
+.tm-modal {
+  background: #fff; border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(15,30,64,.25);
+  width: 100%; max-width: 540px; max-height: 90vh;
+  overflow-y: auto; transform: translateY(20px);
+  transition: transform .25s ease; border: 1px solid rgba(27,54,115,.1);
+}
+.tm-modal-overlay.open .tm-modal { transform: translateY(0); }
+.tm-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(27,54,115,.08);
+  position: sticky; top: 0; background: #fff; z-index: 1; border-radius: 20px 20px 0 0;
+}
+.tm-modal-title {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  font-weight: 700; color: #0F1E40; display: flex; align-items: center; gap: .5rem;
+}
+.tm-modal-title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #c9b37e; }
+.tm-modal-close {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: rgba(27,54,115,.06); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; color: #8C92AC; transition: all .18s;
+}
+.tm-modal-close:hover { background: rgba(239,68,68,.1); color: #dc2626; }
+.tm-modal-body { padding: 1.5rem; }
+.tm-field { margin-bottom: 1.1rem; }
+.tm-field-label {
+  font-size: .78rem; font-weight: 700; color: #1B3673;
+  margin-bottom: .4rem; display: block;
+}
+.tm-field-input {
+  width: 100%; background: rgba(27,54,115,.03);
+  border: 1.5px solid rgba(27,54,115,.13); border-radius: 10px;
+  padding: .65rem .9rem; font-size: .88rem;
+  font-family: 'DM Sans', sans-serif; color: #0F1E40;
+  outline: none; transition: all .2s;
+}
+.tm-field-input:focus { border-color: #c9b37e; box-shadow: 0 0 0 3px rgba(201,179,126,.12); }
+textarea.tm-field-input { resize: vertical; min-height: 100px; }
+/* Star rating picker */
+.tm-star-picker { display: flex; gap: .4rem; }
+.tm-star-pick {
+  font-size: 1.4rem; cursor: pointer; color: #e2e5ec;
+  transition: color .15s, transform .15s;
+}
+.tm-star-pick:hover,
+.tm-star-pick.selected { color: #c9b37e; transform: scale(1.15); }
+/* Toggle */
+.tm-toggle-wrap { display: flex; align-items: center; gap: .65rem; }
+.tm-toggle {
+  position: relative; width: 42px; height: 24px;
+  background: #e2e5ec; border-radius: 50px; cursor: pointer;
+  transition: background .2s; border: none; flex-shrink: 0;
+}
+.tm-toggle.on { background: linear-gradient(135deg, #059669, #047857); }
+.tm-toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; background: #fff; border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15); transition: transform .2s;
+}
+.tm-toggle.on::after { transform: translateX(18px); }
+.tm-toggle-label { font-size: .82rem; font-weight: 600; color: #374151; }
+/* Modal footer */
+.tm-modal-footer {
+  display: flex; justify-content: flex-end; gap: .6rem;
+  padding: 1rem 1.5rem; border-top: 1px solid rgba(27,54,115,.07);
+  background: rgba(27,54,115,.015); border-radius: 0 0 20px 20px;
+}
+.tm-modal-cancel {
+  padding: .55rem 1.2rem; background: rgba(27,54,115,.06);
+  border: 1.5px solid rgba(27,54,115,.12); border-radius: 10px;
+  font-size: .82rem; font-weight: 700; color: #4A5D8A; cursor: pointer; transition: all .18s;
+}
+.tm-modal-cancel:hover { background: rgba(27,54,115,.1); }
+.tm-modal-save {
+  padding: .55rem 1.4rem;
+  background: linear-gradient(135deg, #1B3673, #4A5D8A);
+  border: none; border-radius: 10px;
+  font-size: .82rem; font-weight: 700; color: #fff;
+  cursor: pointer; transition: all .18s;
+  box-shadow: 0 3px 12px rgba(27,54,115,.25);
+}
+.tm-modal-save:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(27,54,115,.35); }
+
+/* Empty */
+.tm-empty { text-align: center; padding: 3.5rem 1rem; }
+.tm-empty-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: rgba(27,54,115,.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; color: rgba(27,54,115,.2); margin: 0 auto 1rem;
+}
+.tm-empty h5 { font-family: 'Playfair Display', serif; color: #0F1E40; margin-bottom: .35rem; }
+.tm-empty p  { font-size: .85rem; color: #8C92AC; margin: 0; }
+</style>
+
+<!-- Page header -->
+<div class="tm-page-header">
+  <div>
+    <h1 class="tm-page-title">Testimonials</h1>
+    <p class="tm-page-sub">Manage client reviews and social proof displayed on your site</p>
+  </div>
+  <a href="/testimonials/add/" class="tm-add-btn"><i class="bi bi-plus-lg"></i> Add Testimonial</a>
+</div>
+
+<!-- Stats -->
+<div class="tm-stats-row">
+  <div class="tm-stat">
+    <div class="tm-stat-ic c-blue"><i class="bi bi-chat-quote-fill"></i></div>
+    <div><div class="tm-stat-val">{{ testimonials|length }}</div><div class="tm-stat-lbl">Total Reviews</div></div>
+  </div>
+  <div class="tm-stat">
+    <div class="tm-stat-ic c-gold"><i class="bi bi-star-fill"></i></div>
+    <div><div class="tm-stat-val">5.0</div><div class="tm-stat-lbl">Avg. Rating</div></div>
+  </div>
+  <div class="tm-stat">
+    <div class="tm-stat-ic c-green"><i class="bi bi-eye-fill"></i></div>
+    <div><div class="tm-stat-val">{{ testimonials|length }}</div><div class="tm-stat-lbl">Visible</div></div>
+  </div>
+  <div class="tm-stat">
+    <div class="tm-stat-ic c-sky"><i class="bi bi-hand-thumbs-up-fill"></i></div>
+    <div><div class="tm-stat-val">100%</div><div class="tm-stat-lbl">Positive</div></div>
+  </div>
+</div>
+
+<!-- Panel -->
+<div class="tm-panel">
+  <div class="tm-panel-header">
+    <div class="tm-panel-title">All Reviews</div>
+    <div class="tm-toolbar">
+      <div class="tm-search-wrap">
+        <i class="bi bi-search tm-search-icon"></i>
+        <input type="text" id="tmSearch" class="tm-search-input" placeholder="Search by name…" autocomplete="off">
+      </div>
+      <div class="tm-filter-bar" id="tmFilters">
+        <button class="tm-tab active" data-filter="all">All</button>
+        <button class="tm-tab" data-filter="active">Visible</button>
+        <button class="tm-tab" data-filter="hidden">Hidden</button>
+        <button class="tm-tab" data-filter="5">5 ★</button>
+        <button class="tm-tab" data-filter="4">4 ★</button>
+      </div>
+      <span class="tm-count" id="tmCount">{{ testimonials|length }} review{{ testimonials|length|pluralize }}</span>
+    </div>
+  </div>
+
+  {% if testimonials %}
+  <div class="tm-grid" id="tmGrid">
+    {% for t in testimonials %}
+    <div class="tm-card"
+         data-status="{% if t.is_active %}active{% else %}hidden{% endif %}"
+         data-rating="{{ t.rating }}"
+         data-name="{{ t.name|lower }}"
+         data-pk="{{ t.pk }}">
+
+      <!-- Top -->
+      <div class="tm-card-top">
+        <div class="tm-avatar-wrap">
+          <div class="tm-avatar">
+            {% if t.avatar %}<img src="{{ t.avatar.url }}" alt="{{ t.name }}">
+            {% else %}{{ t.name|first|upper }}{% endif %}
+          </div>
+          <div>
+            <div class="tm-client-name">{{ t.name }}</div>
+            {% if t.position %}<div class="tm-client-pos">{{ t.position }}</div>{% endif %}
+          </div>
+        </div>
+        <div class="tm-controls">
+          <span class="tm-vis-badge {% if t.is_active %}active{% else %}inactive{% endif %}">
+            {% if t.is_active %}● Visible{% else %}○ Hidden{% endif %}
+          </span>
+          <div class="tm-action-btns">
+            <button type="button" class="tm-action-btn edit tm-edit-trigger"
+              title="Edit"
+              data-pk="{{ t.pk }}"
+              data-name="{{ t.name }}"
+              data-position="{{ t.position }}"
+              data-message="{{ t.message }}"
+              data-rating="{{ t.rating }}"
+              data-active="{{ t.is_active|yesno:'true,false' }}">
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+            <a href="/testimonials/{{ t.pk }}/delete/" class="tm-action-btn del" title="Delete">
+              <i class="bi bi-trash3-fill"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stars -->
+      <div class="tm-stars">
+        {% for i in "12345"|make_list %}
+          <i class="bi bi-star{% if forloop.counter <= t.rating %}-fill filled{% else %} empty{% endif %}"></i>
+        {% endfor %}
+      </div>
+
+      <!-- Message -->
+      <p class="tm-message">"{{ t.message }}"</p>
+
+      <!-- Footer -->
+      <div class="tm-card-foot">
+        <span class="tm-rating-label">Rating</span>
+        <span class="tm-rating-val">{{ t.rating }}.0 / 5.0</span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="tm-empty">
+    <div class="tm-empty-icon"><i class="bi bi-chat-quote"></i></div>
+    <h5>No testimonials yet</h5>
+    <p><a href="/testimonials/add/" style="color:#1B3673;font-weight:700;">Add your first review →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── Edit Modal ── -->
+<div class="tm-modal-overlay" id="tmEditOverlay">
+  <div class="tm-modal" id="tmModal">
+    <div class="tm-modal-header">
+      <div class="tm-modal-title">Edit Testimonial</div>
+      <button type="button" class="tm-modal-close" id="tmModalClose"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" id="tmEditForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="tm-modal-body">
+        <div class="tm-field">
+          <label class="tm-field-label">Client Name</label>
+          <input type="text" name="name" id="tmEditName" class="tm-field-input" required>
+        </div>
+        <div class="tm-field">
+          <label class="tm-field-label">Position / Company</label>
+          <input type="text" name="position" id="tmEditPosition" class="tm-field-input">
+        </div>
+        <div class="tm-field">
+          <label class="tm-field-label">Message</label>
+          <textarea name="message" id="tmEditMessage" class="tm-field-input" required></textarea>
+        </div>
+        <div class="tm-field">
+          <label class="tm-field-label">Rating</label>
+          <div class="tm-star-picker" id="tmStarPicker">
+            <i class="bi bi-star-fill tm-star-pick" data-val="1"></i>
+            <i class="bi bi-star-fill tm-star-pick" data-val="2"></i>
+            <i class="bi bi-star-fill tm-star-pick" data-val="3"></i>
+            <i class="bi bi-star-fill tm-star-pick" data-val="4"></i>
+            <i class="bi bi-star-fill tm-star-pick" data-val="5"></i>
+          </div>
+          <input type="hidden" name="rating" id="tmEditRating" value="5">
+        </div>
+        <div class="tm-field">
+          <label class="tm-field-label">Visibility</label>
+          <div class="tm-toggle-wrap">
+            <button type="button" class="tm-toggle on" id="tmActiveToggle"></button>
+            <span class="tm-toggle-label" id="tmToggleLabel">Visible on site</span>
+            <input type="hidden" name="is_active" id="tmEditActive" value="True">
+          </div>
+        </div>
+      </div>
+      <div class="tm-modal-footer">
+        <button type="button" class="tm-modal-cancel" id="tmModalCancel">Cancel</button>
+        <button type="submit" class="tm-modal-save"><i class="bi bi-check2 me-1"></i>Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  /* ── Filter & search ── */
+  const search  = document.getElementById('tmSearch');
+  const tabs    = document.querySelectorAll('#tmFilters .tm-tab');
+  const cards   = document.querySelectorAll('#tmGrid .tm-card');
+  const countEl = document.getElementById('tmCount');
+  let activeFilter = 'all';
+
+  function applyFilters() {
+    const q = (search.value || '').trim().toLowerCase();
+    let visible = 0;
+    cards.forEach(card => {
+      const matchFilter =
+        activeFilter === 'all'    ? true :
+        activeFilter === 'active' ? card.dataset.status === 'active' :
+        activeFilter === 'hidden' ? card.dataset.status === 'hidden' :
+        card.dataset.rating === activeFilter;
+      const matchSearch = !q || card.dataset.name.includes(q);
+      const show = matchFilter && matchSearch;
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+    countEl.textContent = visible + ' review' + (visible !== 1 ? 's' : '');
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active', 'act-vis', 'act-hid'));
+      tab.classList.add('active');
+      if (tab.dataset.filter === 'active') tab.classList.add('act-vis');
+      if (tab.dataset.filter === 'hidden') tab.classList.add('act-hid');
+      activeFilter = tab.dataset.filter;
+      applyFilters();
+    });
+  });
+  search.addEventListener('input', applyFilters);
+
+  /* ── Edit modal ── */
+  const overlay    = document.getElementById('tmEditOverlay');
+  const form       = document.getElementById('tmEditForm');
+  const closeBtn   = document.getElementById('tmModalClose');
+  const cancelBtn  = document.getElementById('tmModalCancel');
+  const nameInput  = document.getElementById('tmEditName');
+  const posInput   = document.getElementById('tmEditPosition');
+  const msgInput   = document.getElementById('tmEditMessage');
+  const ratingInput= document.getElementById('tmEditRating');
+  const activeInput= document.getElementById('tmEditActive');
+  const toggle     = document.getElementById('tmActiveToggle');
+  const toggleLbl  = document.getElementById('tmToggleLabel');
+  const starPicker = document.getElementById('tmStarPicker');
+  const starBtns   = starPicker.querySelectorAll('.tm-star-pick');
+
+  /* Star picker */
+  let currentRating = 5;
+  function setStars(val) {
+    currentRating = val;
+    ratingInput.value = val;
+    starBtns.forEach(s => {
+      s.classList.toggle('selected', parseInt(s.dataset.val) <= val);
+    });
+  }
+  starBtns.forEach(s => {
+    s.addEventListener('mouseenter', () => {
+      starBtns.forEach(b => b.classList.toggle('selected', parseInt(b.dataset.val) <= parseInt(s.dataset.val)));
+    });
+    s.addEventListener('mouseleave', () => setStars(currentRating));
+    s.addEventListener('click', () => setStars(parseInt(s.dataset.val)));
+  });
+  setStars(5);
+
+  /* Visibility toggle */
+  let isActive = true;
+  toggle.addEventListener('click', () => {
+    isActive = !isActive;
+    toggle.classList.toggle('on', isActive);
+    toggleLbl.textContent = isActive ? 'Visible on site' : 'Hidden from site';
+    activeInput.value = isActive ? 'True' : 'False';
+  });
+
+  /* Open modal */
+  document.querySelectorAll('.tm-edit-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pk       = btn.dataset.pk;
+      const name     = btn.dataset.name;
+      const position = btn.dataset.position;
+      const message  = btn.dataset.message;
+      const rating   = parseInt(btn.dataset.rating);
+      const active   = btn.dataset.active === 'true';
+
+      form.action = '/testimonials/' + pk + '/edit/';
+      nameInput.value  = name;
+      posInput.value   = position;
+      msgInput.value   = message;
+      setStars(rating);
+
+      isActive = active;
+      toggle.classList.toggle('on', active);
+      toggleLbl.textContent = active ? 'Visible on site' : 'Hidden from site';
+      activeInput.value = active ? 'True' : 'False';
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  closeBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,541 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard – Scalora{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/scalora.css">
+  <style>
+  /* ══════════════════════════════════════════
+     SCALORA Dashboard – Enhanced Base
+  ══════════════════════════════════════════ */
+  :root {
+    --sb-width: 256px;
+    --sb-collapsed: 70px;
+    --topbar-h: 62px;
+    --sb-bg: #080f22;
+    --sb-border: rgba(201,179,126,.08);
+    --sb-text: rgba(255,255,255,.45);
+    --sb-text-hover: rgba(255,255,255,.85);
+    --sb-text-active: #ffffff;
+    --sb-hover: rgba(255,255,255,.04);
+    --sb-active-bg: rgba(201,179,126,.1);
+    --sb-active-border: #c9b37e;
+    --gold: #c9b37e;
+    --navy: #1B3673;
+    --navy-dark: #0F1E40;
+    --body-bg: #f1f3f9;
+    --topbar-bg: rgba(255,255,255,.98);
+    --card-border: rgba(27,54,115,.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--body-bg);
+    color: #374151;
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .db-wrapper { display: flex; min-height: 100vh; }
+
+  /* ══════════════════
+     SIDEBAR
+  ══════════════════ */
+  .db-sidebar {
+    width: var(--sb-width);
+    background: var(--sb-bg);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; height: 100vh;
+    z-index: 300; overflow: hidden;
+    transition: transform .28s cubic-bezier(.4,0,.2,1),
+                width .28s cubic-bezier(.4,0,.2,1);
+    border-right: 1px solid var(--sb-border);
+  }
+
+  /* Brand */
+  .sb-brand {
+    height: var(--topbar-h);
+    display: flex; align-items: center;
+    padding: 0 1.25rem;
+    border-bottom: 1px solid var(--sb-border);
+    flex-shrink: 0; gap: .75rem;
+    text-decoration: none;
+  }
+  .sb-logo {
+    width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, #1B3673, #4A5D8A);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 1.1rem;
+    font-weight: 900; color: #c9b37e;
+    box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  }
+  .sb-brand-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; font-weight: 700; color: #fff;
+    white-space: nowrap; overflow: hidden;
+    transition: opacity .2s;
+  }
+  .sb-brand-text span { color: #c9b37e; }
+
+  /* Nav sections */
+  .sb-nav {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: .75rem .6rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.06) transparent;
+  }
+  .sb-nav::-webkit-scrollbar { width: 3px; }
+  .sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.07); border-radius: 3px; }
+
+  .sb-section-label {
+    font-size: .6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,.2); padding: .9rem .65rem .4rem;
+    white-space: nowrap; overflow: hidden;
+  }
+
+  .sb-link {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .6rem .75rem; border-radius: 10px;
+    color: var(--sb-text); text-decoration: none;
+    font-size: .84rem; font-weight: 500;
+    transition: all .18s; margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden;
+    position: relative;
+  }
+  .sb-link i {
+    font-size: 1rem; width: 20px; text-align: center;
+    flex-shrink: 0; transition: color .18s;
+  }
+  .sb-link span { overflow: hidden; transition: opacity .2s; }
+  .sb-link:hover {
+    background: var(--sb-hover);
+    color: var(--sb-text-hover);
+  }
+  .sb-link:hover i { color: #c9b37e; }
+  .sb-link.active {
+    background: var(--sb-active-bg);
+    color: var(--sb-text-active);
+    border-left: 2.5px solid var(--sb-active-border);
+    padding-left: calc(.75rem - 2.5px);
+  }
+  .sb-link.active i { color: #c9b37e; }
+
+  /* Active indicator dot */
+  .sb-link.active::after {
+    content: '';
+    position: absolute; right: .7rem; top: 50%; transform: translateY(-50%);
+    width: 5px; height: 5px; background: #c9b37e; border-radius: 50%;
+    box-shadow: 0 0 6px rgba(201,179,126,.5);
+  }
+
+  .sb-divider {
+    height: 1px; background: var(--sb-border); margin: .5rem .65rem;
+  }
+
+  /* Footer */
+  .sb-footer {
+    padding: .5rem .6rem .75rem;
+    border-top: 1px solid var(--sb-border); flex-shrink: 0;
+  }
+  .sb-logout {
+    color: rgba(239,100,100,.55) !important;
+  }
+  .sb-logout:hover {
+    background: rgba(239,68,68,.08) !important;
+    color: #ef4444 !important;
+  }
+  .sb-logout:hover i { color: #ef4444 !important; }
+
+  /* User mini-card in sidebar footer */
+  .sb-user-card {
+    display: flex; align-items: center; gap: .7rem;
+    padding: .65rem .75rem; border-radius: 10px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.05);
+    margin-bottom: .4rem; overflow: hidden;
+    text-decoration: none;
+  }
+  .sb-user-card:hover { background: rgba(255,255,255,.06); }
+  .sb-user-av {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #1B3673, #4A5D8A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; color: #fff;
+    border: 1.5px solid rgba(201,179,126,.3);
+  }
+  .sb-user-info { min-width: 0; overflow: hidden; }
+  .sb-user-name { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sb-user-role { font-size: .66rem; color: rgba(255,255,255,.35); }
+
+  /* ══════════════════
+     MAIN
+  ══════════════════ */
+  .db-main {
+    margin-left: var(--sb-width);
+    flex: 1; display: flex; flex-direction: column;
+    min-height: 100vh; min-width: 0;
+    transition: margin-left .28s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ══════════════════
+     TOPBAR
+  ══════════════════ */
+  .db-topbar {
+    height: var(--topbar-h);
+    background: var(--topbar-bg);
+    display: flex; align-items: center;
+    padding: 0 1.5rem; gap: 1rem;
+    position: sticky; top: 0; z-index: 200;
+    border-bottom: 1px solid rgba(27,54,115,.07);
+    box-shadow: 0 1px 16px rgba(15,30,64,.05);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Hamburger */
+  .topbar-toggle {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: transparent; border: 1.5px solid rgba(27,54,115,.12);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #1B3673; font-size: 1.1rem;
+    transition: all .18s; display: none;
+  }
+  .topbar-toggle:hover { background: rgba(27,54,115,.06); }
+
+  /* Breadcrumb-style title */
+  .topbar-title-wrap { flex: 1; display: flex; align-items: center; gap: .5rem; overflow: hidden; }
+  .topbar-home-ic { font-size: .85rem; color: #8C92AC; flex-shrink: 0; }
+  .topbar-sep { font-size: .7rem; color: #d1d5db; flex-shrink: 0; }
+  .topbar-page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; font-weight: 700; color: #0F1E40;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* Right side */
+  .topbar-right { display: flex; align-items: center; gap: .75rem; flex-shrink: 0; }
+
+  /* Book button */
+  .topbar-book-btn {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: linear-gradient(135deg, #1B3673, #4A5D8A);
+    color: #fff !important; border: none; border-radius: 10px;
+    font-size: .78rem; font-weight: 700; padding: .48rem 1rem;
+    text-decoration: none; transition: all .2s;
+    box-shadow: 0 2px 10px rgba(27,54,115,.25);
+    white-space: nowrap;
+  }
+  .topbar-book-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(27,54,115,.35); }
+
+  /* Notification bell */
+  .topbar-icon-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(27,54,115,.05); border: 1.5px solid rgba(27,54,115,.1);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #4A5D8A; font-size: 1rem;
+    transition: all .18s; position: relative; text-decoration: none;
+  }
+  .topbar-icon-btn:hover { background: rgba(27,54,115,.1); color: #1B3673; }
+
+  /* User chip */
+  .topbar-user-chip {
+    display: flex; align-items: center; gap: .6rem;
+    background: rgba(27,54,115,.04);
+    border: 1.5px solid rgba(27,54,115,.1);
+    border-radius: 50px; padding: .3rem .85rem .3rem .3rem;
+    cursor: default;
+  }
+  .topbar-av {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, #1B3673, #4A5D8A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .topbar-username {
+    font-size: .8rem; font-weight: 700; color: #1B3673;
+    white-space: nowrap;
+  }
+
+  /* ══════════════════
+     CONTENT AREA
+  ══════════════════ */
+  .db-content {
+    flex: 1; padding: 1.75rem;
+    background: var(--body-bg);
+  }
+
+  /* ── Alerts ── */
+  .db-alerts { padding: 1rem 1.75rem 0; }
+  .db-alert {
+    border-radius: 12px; border: none;
+    font-size: .85rem; font-weight: 500;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    padding: .75rem 1.1rem;
+  }
+  .db-alert .btn-close { padding: .75rem; }
+  .alert-success { background: rgba(16,185,129,.1); color: #065f46; border-left: 3px solid #10b981 !important; }
+  .alert-danger, .alert-error { background: rgba(239,68,68,.08); color: #7f1d1d; border-left: 3px solid #ef4444 !important; }
+  .alert-info    { background: rgba(59,130,246,.08); color: #1e3a5f; border-left: 3px solid #3b82f6 !important; }
+  .alert-warning { background: rgba(245,158,11,.1); color: #78350f; border-left: 3px solid #f59e0b !important; }
+
+  /* ══════════════════
+     MOBILE OVERLAY
+  ══════════════════ */
+  .sb-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(8,15,34,.7); backdrop-filter: blur(3px);
+    z-index: 299;
+  }
+  .sb-overlay.visible { display: block; }
+
+  /* ══════════════════
+     RESPONSIVE
+  ══════════════════ */
+  @media (max-width: 991px) {
+    .topbar-toggle { display: flex; }
+    .db-sidebar { transform: translateX(-100%); }
+    .db-sidebar.open { transform: translateX(0); box-shadow: 8px 0 40px rgba(0,0,0,.4); }
+    .db-main { margin-left: 0; }
+    .db-content { padding: 1.1rem; }
+    .topbar-book-btn { display: none; }
+  }
+
+  @media (max-width: 576px) {
+    .topbar-username { display: none; }
+    .db-topbar { padding: 0 1rem; }
+    .topbar-page-title { font-size: .88rem; }
+  }
+
+  /* ══════════════════
+     GLASS CARD OVERRIDE
+     (dashboard context)
+  ══════════════════ */
+  .db-content .glass-card {
+    background: #fff !important;
+    border: 1px solid var(--card-border) !important;
+    box-shadow: 0 2px 16px rgba(15,30,64,.05) !important;
+    border-radius: 16px;
+  }
+  .db-content .glass-card:hover {
+    transform: none;
+    box-shadow: 0 4px 24px rgba(15,30,64,.09) !important;
+  }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Mobile overlay -->
+<div class="sb-overlay" id="sbOverlay"></div>
+
+<div class="db-wrapper">
+
+  <!-- ══════════════════════════════
+       SIDEBAR
+  ══════════════════════════════ -->
+  <aside class="db-sidebar" id="dbSidebar">
+
+    <!-- Brand -->
+    <a href="/" class="sb-brand">
+      <h2 class="auth-brand">
+    <img src="{% static 'images/scalora-logo.png' %}" 
+         alt="Scalora Logo" 
+         style="height: 45px; width: auto;">
+</h2>
+    </a>
+
+    <!-- Nav -->
+    <nav class="sb-nav">
+      <div class="sb-section-label">
+        {% if user.is_staff %}Admin Panel{% else %}My Account{% endif %}
+      </div>
+
+      {% if user.is_staff %}
+      <a href="/dashboard/admin/"
+         class="sb-link {% if request.path == '/dashboard/admin/' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i><span>Overview</span>
+      </a>
+      <a href="/dashboard/admin/bookings/"
+         class="sb-link {% if '/bookings/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-calendar-check"></i><span>Bookings</span>
+      </a>
+      <a href="/dashboard/admin/services/"
+         class="sb-link {% if '/services/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-briefcase"></i><span>Services</span>
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Content</div>
+
+      <a href="/dashboard/admin/testimonials/"
+         class="sb-link {% if '/testimonials/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-chat-quote"></i><span>Testimonials</span>
+      </a>
+      <a href="/dashboard/admin/blogs/"
+         class="sb-link {% if '/blogs/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-newspaper"></i><span>Blog Posts</span>
+      </a>
+      <a href="/dashboard/admin/careers/"
+         class="sb-link {% if '/careers/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-people"></i><span>Careers</span>
+      </a>
+      <a href="/dashboard/admin/ebooks/"
+         class="sb-link {% if '/ebooks/' in request.path and '/dashboard/' in request.path %}active{% endif %}">
+        <i class="bi bi-book"></i><span>eBooks & Orders</span>
+      </a>
+
+      {% else %}
+      <a href="/dashboard/client/"
+         class="sb-link {% if request.path == '/dashboard/client/' %}active{% endif %}">
+        <i class="bi bi-house"></i><span>Overview</span>
+      </a>
+      <a href="/dashboard/client/bookings/"
+         class="sb-link {% if '/client/bookings/' in request.path %}active{% endif %}">
+        <i class="bi bi-calendar3"></i><span>My Bookings</span>
+      </a>
+      <a href="/dashboard/client/orders/"
+         class="sb-link {% if '/client/orders/' in request.path %}active{% endif %}">
+        <i class="bi bi-bag"></i><span>My Orders</span>
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Explore</div>
+
+      <a href="/bookings/book/" class="sb-link">
+        <i class="bi bi-calendar-plus"></i><span>Book Appointment</span>
+      </a>
+      <a href="/ebooks/" class="sb-link">
+        <i class="bi bi-shop"></i><span>eBook Store</span>
+      </a>
+      {% endif %}
+    </nav>
+
+    <!-- Footer -->
+    <div class="sb-footer">
+      <!-- User mini-card -->
+      <a href="/accounts/profile/" class="sb-user-card">
+        <div class="sb-user-av">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">{{ user.get_full_name|default:user.username|truncatechars:20 }}</div>
+          <div class="sb-user-role">{% if user.is_staff %}Administrator{% else %}Client{% endif %}</div>
+        </div>
+      </a>
+
+      <a href="/" class="sb-link">
+        <i class="bi bi-globe"></i><span>Public Site</span>
+      </a>
+      <a href="/accounts/logout/" class="sb-link sb-logout">
+        <i class="bi bi-box-arrow-left"></i><span>Logout</span>
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════════════════
+       MAIN
+  ══════════════════════════════ -->
+  <div class="db-main">
+
+    <!-- Topbar -->
+    <header class="db-topbar">
+      <button class="topbar-toggle" id="topbarToggle" aria-label="Toggle sidebar">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="topbar-title-wrap">
+        <i class="bi bi-house topbar-home-ic"></i>
+        <i class="bi bi-chevron-right topbar-sep"></i>
+        <div class="topbar-page-title">{% block page_title %}Dashboard{% endblock %}</div>
+      </div>
+
+      <div class="topbar-right">
+        <a href="/bookings/book/" class="topbar-book-btn">
+          <i class="bi bi-calendar-plus"></i> Book Appointment
+        </a>
+        <a href="/accounts/profile/" class="topbar-icon-btn" title="Profile">
+          <i class="bi bi-person-circle"></i>
+        </a>
+        <div class="topbar-user-chip">
+          <div class="topbar-av">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+          <span class="topbar-username">{{ user.get_full_name|default:user.username }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Alerts -->
+    {% if messages %}
+    <div class="db-alerts">
+      {% for message in messages %}
+      <div class="alert db-alert alert-{{ message.tags }} alert-dismissible fade show d-flex align-items-center gap-2">
+        <i class="bi bi-{% if 'success' in message.tags %}check-circle-fill{% elif 'error' in message.tags or 'danger' in message.tags %}exclamation-circle-fill{% elif 'warning' in message.tags %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}"></i>
+        <span>{{ message }}</span>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Page Content -->
+    <div class="db-content">
+      {% block content %}{% endblock %}
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/scalora.js"></script>
+<script>
+(function () {
+  const sidebar  = document.getElementById('dbSidebar');
+  const toggle   = document.getElementById('topbarToggle');
+  const overlay  = document.getElementById('sbOverlay');
+
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  overlay.addEventListener('click', closeSidebar);
+
+  // Close on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+  // Auto-dismiss alerts
+  setTimeout(() => {
+    document.querySelectorAll('.db-alert').forEach(el => {
+      try { new bootstrap.Alert(el).close(); } catch {}
+    });
+  }, 4500);
+
+  // Active nav highlight pulse on load
+  document.querySelectorAll('.sb-link.active').forEach(link => {
+    link.style.animation = 'sbActivePop .35s ease';
+  });
+})();
+</script>
+<style>
+@keyframes sbActivePop {
+  0%   { transform: scale(.97); opacity: .7; }
+  60%  { transform: scale(1.02); }
+  100% { transform: scale(1); opacity: 1; }
+}
+</style>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

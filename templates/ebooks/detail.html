@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}{{ ebook.title }} – Scalora eBooks{% endblock %}
+{% block content %}
+<div class="page-header-section"><div class="container">
+<div class="section-eyebrow">eBook</div>
+<h1 class="page-title">{{ ebook.title }}</h1>
+</div></div>
+<section class="py-section"><div class="container"><div class="row g-5 justify-content-center">
+<div class="col-lg-3 col-md-4 text-center">
+{% if ebook.cover_image %}<img src="{{ ebook.cover_image.url }}" class="ebook-detail-cover mb-4">
+{% else %}<div class="ebook-cover-placeholder large mb-4"><i class="bi bi-book"></i></div>{% endif %}
+<div class="ebook-price-display">${{ ebook.price }}</div>
+<a href="{% url 'ebooks:order' ebook.pk %}" class="btn scalora-btn-primary w-100 mt-3">Order This eBook</a>
+</div>
+<div class="col-lg-7">
+<div class="glass-card p-5">
+<div class="d-flex gap-3 flex-wrap mb-4">
+{% if ebook.category %}<span class="badge bg-primary">{{ ebook.category }}</span>{% endif %}
+{% if ebook.pages %}<span class="badge bg-secondary">{{ ebook.pages }} pages</span>{% endif %}
+<span class="badge bg-dark">By {{ ebook.author }}</span>
+</div>
+<h5 class="text-gold mb-3">About This eBook</h5>
+<div>{{ ebook.description|linebreaks }}</div>
+</div>
+</div>
+</div></div></section>
+{% endblock %}

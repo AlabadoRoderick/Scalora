@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}Scalora – The Future of Growing Your Business{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero-section" id="hero" style="background-image: url('/static/images/home.jfif'); background-size: cover; background-position: center; background-attachment: fixed; position: relative;">
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1;"></div>
+    <div class="container hero-content" style="position: relative; z-index: 2;">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="hero-badge mb-4">
+                    <span class="badge-dot"></span>
+                    <span>Business Growth Platform</span>
+                </div>
+                <h1 class="hero-headline" style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 3.5rem; line-height: 1.3; color: white; font-weight: 500; letter-spacing: -0.5px;">
+                    The <span style="font-style: italic;">Future</span> of growing your<br>
+                    <span class="headline-gold" style="font-style: italic;">business</span> starts with the right support.
+                </h1>
+                <p class="hero-subtext mt-4" style="font-size: 0rem; display: none;">
+                    Scalora connects ambitious entrepreneurs with seasoned professionals and intelligent scheduling so you can focus on what truly matters: <span class="headline-gold">Growing</span>
+                </p>
+                <div class="hero-cta-group mt-5">
+                    <a href="/bookings/book/" class="btn scalora-btn-primary btn-lg hero-btn-main">
+                        <i class="bi bi-calendar-check me-2"></i>Start Your Personal Strategy Call
+                    </a>
+                    <a href="#how-it-works" class="btn scalora-btn-ghost btn-lg hero-btn-secondary ms-3">
+                        Know How It Works <i class="bi bi-arrow-down ms-2"></i>
+                    </a>
+                </div>
+                <div class="hero-stats mt-5">
+                    <div class="stat-item">
+                        <!-- <span class="stat-num">500+</span> -->
+                        <!-- <span class="stat-label">Businesses Supported</span> -->
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <!-- <span class="stat-num">98%</span> -->
+                        <!-- <span class="stat-label">Client Satisfaction</span> -->
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <!-- <span class="stat-num">50+</span> -->
+                        <!-- <span class="stat-label">Expert Assistants</span> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </div>
+</section>
+
+<!-- STOP DOING IT ALL SECTION -->
+<section class="section-stop-doing py-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <div class="section-eyebrow">The Scalora </div>
+                <h2 class="section-title">Stop Doing It All ...<br><span class="text-gold">Start Growing</span><br>Your Business.</h2>
+                <p class="section-body mt-4">
+                    There's endless advice telling you what tasks matter, what systems to follow, or what you must do to succeed. The truth? You don't have to handle it all yourself.
+                </p>
+                <p class="section-body">
+                    At Scalora, we connect business owners with expertly trained virtual assistants who take ownership of daily operations with precision and care. From administration to client follow-ups, we free your time so you can focus on strategy, leadership, and growth. Every assistant is trained to anticipate your needs and provide solutions that drive results.
+                </p>
+                <a href="/bookings/book/" class="btn scalora-btn-primary mt-4">
+                    Book Your Personal Strategy Call <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+            </div>
+            <div class="col-lg-7">
+                <div class="stop-doing-visual">
+                    <div class="visual-card glass-card" style="--delay: 0s">
+                        <div class="vc-icon"><i class="bi bi-calendar2-check"></i></div>
+                        <div class="vc-text">
+                            <strong>Smart Scheduling</strong>
+                            <span>Zero double-bookings. Always on time.</span>
+                        </div>
+                    </div>
+                    <div class="visual-card glass-card" style="--delay: 0.1s">
+                        <div class="vc-icon"><i class="bi bi-people-fill"></i></div>
+                        <div class="vc-text">
+                            <strong>Trusted Virtual Assistants</strong>
+                            <span>Have a professional experiences.</span>
+                        </div>
+                    </div>
+                    <div class="visual-card glass-card" style="--delay: 0.2s">
+                        <div class="vc-icon"><i class="bi bi-shield-check"></i></div>
+                        <div class="vc-text">
+                            <strong>Secure & Private</strong>
+                            <span>Your data, protected always.</span>
+                        </div>
+                    </div>
+                    <div class="visual-card glass-card" style="--delay: 0.3s">
+                        <div class="vc-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <div class="vc-text">
+                            <strong>Growth Analytics</strong>
+                            <span>Insights that drive real decisions.</span>
+                        </div>
+                    </div>
+                    <div class="visual-orb visual-orb-1"></div>
+                    <div class="visual-orb visual-orb-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="features-section py-section" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-eyebrow">Why Scalora?</div>
+            <h2 class="section-title">Support Built to<br><span class="text-gold">Scale With Your Business</span></h2>
+        </div>
+        <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-tools fc-icon"></i></div>
+                    <h5 class="fc-title">Fully Equipped Assistants</h5>
+                    <p class="fc-text">All our virtual assistants have the tools they need — laptops, headsets, and software — to provide consistent, high-quality support.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-person-badge fc-icon"></i></div>
+                    <h5 class="fc-title">Experienced Professionals</h5>
+                    <p class="fc-text">Our team members bring real-world experience and complete a tailored training program to ensure efficiency, reliability, and readiness from day one.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-arrows-angle-expand fc-icon"></i></div>
+                    <h5 class="fc-title">Flexible Engagements</h5>
+                    <p class="fc-text">Scale your support team according to your needs — no long-term contracts, no unnecessary commitments.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-eye fc-icon"></i></div>
+                    <h5 class="fc-title">Transparent Collaboration</h5>
+                    <p class="fc-text">No hidden fees, no surprises. Pay only for the support you receive, with clear, honest pricing.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-arrow-repeat fc-icon"></i></div>
+                    <h5 class="fc-title">Seamless Replacements</h5>
+                    <p class="fc-text">Need to replace a virtual assistant? We handle it quickly at no extra cost, ensuring your business never misses a beat.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card glass-card h-100">
+                    <div class="fc-icon-wrap"><i class="bi bi-heart-fill fc-icon"></i></div>
+                    <h5 class="fc-title">Purpose-Driven Partnerships</h5>
+                    <p class="fc-text">Every engagement helps create stable, meaningful work for Filipino professionals while delivering measurable results for your business.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS SECTION -->
+<section class="how-it-works-section py-section" id="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-eyebrow">The Process</div>
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Four simple steps to transform how your business operates</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number text-white">Step 1</div>
+                    <div class="step-icon-wrap"><i class="bi bi-telephone-outbound step-icon"></i></div>
+                    <h5 class="step-title">Discovery Call</h5>
+                    <p class="step-text">We start with a deep-dive conversation to understand your business, your challenges, and what success looks like for you.</p>
+                    <div class="step-connector"></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number text-white">Step 2</div>
+                    <div class="step-icon-wrap"><i class="bi bi-person-check step-icon"></i></div>
+                    <h5 class="step-title">Perfect Match</h5>
+                    <p class="step-text">Based on your needs, we handpick a professional who aligns with your industry, communication style, and work preferences.</p>
+                    <div class="step-connector"></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number text-white">Step 3</div>
+                    <div class="step-icon-wrap"><i class="bi bi-rocket-takeoff step-icon"></i></div>
+                    <h5 class="step-title">Smooth Onboarding</h5>
+                    <p class="step-text">Your assistant is introduced, briefed, and ready to work within 72 hours. Our onboarding team handles everything.</p>
+                    <div class="step-connector"></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number text-white">Step 4</div>
+                    <div class="step-icon-wrap"><i class="bi bi-graph-up-arrow step-icon"></i></div>
+                    <h5 class="step-title">Consistent Support</h5>
+                    <p class="step-text">Ongoing, reliable support with regular check-ins, performance reviews, and the flexibility to scale as your business evolves.</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-5">
+            <a href="/bookings/book/" class="btn scalora-btn-primary btn-lg">
+                Start Your Journey <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES PREVIEW -->
+{% if services %}
+<section class="services-preview-section py-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-eyebrow">What We Offer</div>
+            <h2 class="section-title">Our <span class="text-gold">Services</span></h2>
+        </div>
+        <div class="row g-4">
+            {% for service in services %}
+            <div class="col-lg-4 col-md-6">
+                <div class="service-card glass-card h-100">
+                    <div class="sc-header">
+                        <div class="sc-icon-wrap"><i class="bi {{ service.icon|default:'bi-briefcase' }} sc-icon"></i></div>
+                        <div class="sc-price">${{ service.price }}</div>
+                    </div>
+                    <h5 class="sc-title">{{ service.name }}</h5>
+                    <p class="sc-desc">{{ service.description|truncatechars:100 }}</p>
+                    <div class="sc-footer">
+                        <span class="sc-duration"><i class="bi bi-clock me-1"></i>{{ service.duration_display }}</span>
+                        <a href="/bookings/book/?service={{ service.pk }}" class="btn scalora-btn-sm">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="/services/" class="btn scalora-btn-outline">View All Services</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- TESTIMONIALS SECTION -->
+{% if testimonials %}
+<section class="testimonials-section py-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-eyebrow">Client Stories</div>
+            <h2 class="section-title">What Our Clients <span class="text-gold">Say</span></h2>
+        </div>
+        <div class="row g-4">
+            {% for t in testimonials %}
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card glass-card h-100">
+                    <div class="tc-stars mb-3">
+                        {% for i in "12345"|make_list %}
+                        <i class="bi bi-star{% if forloop.counter <= t.rating %}-fill{% endif %} text-gold"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="tc-message">"{{ t.message }}"</p>
+                    <div class="tc-author mt-3">
+                        {% if t.avatar %}
+                        <img src="{{ t.avatar.url }}" alt="{{ t.name }}" class="tc-avatar">
+                        {% else %}
+                        <div class="tc-avatar-placeholder"><i class="bi bi-person"></i></div>
+                        {% endif %}
+                        <div>
+                            <strong class="tc-name">{{ t.name }}</strong>
+                            {% if t.position %}<span class="tc-position">{{ t.position }}</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ABOUT SUMMARY SECTION -->
+<section class="about-summary-section py-section">
+    <div class="container">
+        <div class="about-summary-inner glass-card-dark">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="section-eyebrow light">Our Philosophy</div>
+                    <h2 class="section-title text-white">We're Not Just Support.<br><span class="text-gold">We're Your Growth Partner.</span></h2>
+                    <p class="step-text">
+                        Scalora is a Philippine-based recruiting agency connecting business owners with trusted virtual professionals. We focus on clarity, operational excellence, and long-term collaboration. Our mission is to give business owners time freedom while creating meaningful careers for Filipino talent. We are strategic partners who anticipate challenges and provide solutions that drive real business results.
+                    </p>
+                    <p class="section-body text-white-80">
+                        <!-- Our mission is simple: to give growing businesses the infrastructure, talent, and technology they need to reach the next level — without the overhead and risk of traditional hiring.
+                    </p> -->
+                    <a href="/about/" class="btn scalora-btn-gold mt-4">Learn Our Story <i class="bi bi-arrow-right ms-2"></i></a>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-metrics">
+                        <div class="metric-item">
+                            <span class="metric-val">2026</span>
+                            <span class="metric-label">Founded</span>
+                        </div>
+                        <div class="metric-item">
+                            <!-- <span class="metric-val">40+</span> -->
+                            <!-- <span class="metric-label">Available to Any Country</span> -->
+                        </div>
+                        <div class="metric-item">
+                            <!-- <span class="metric-val">$2M+</span> -->
+                            <!-- <span class="metric-label">Client Revenue Generated</span> -->
+                        </div>
+                        <div class="metric-item">
+                            <!-- <span class="metric-val">24hrs</span> -->
+                            <!-- <span class="metric-label">Support Available</span> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section py-section">
+    <div class="container">
+        <div class="cta-inner text-center">
+            <div class="section-eyebrow">Ready to Grow?</div>
+            <h2 class="cta-headline">Book Your Personal<br><span class="text-gold">Strategy Call</span> Today</h2>
+            <!-- <p class="cta-subtext mt-3">30-minute complimentary consultation with a Scalora growth strategist. No obligations, just clarity.</p> -->
+            <a href="/bookings/book/" class="btn scalora-btn-primary btn-xl mt-4">
+                <i class="bi bi-calendar-plus me-2"></i>Book Your Personal Strategy Call →
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/hero3d.js"></script>
+{% endblock %}

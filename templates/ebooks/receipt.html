@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Receipt #{{ order.pk }} – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section"><div class="container"><h1 class="page-title">Receipt <span class="text-gold">#{{ order.pk }}</span></h1></div></div>
+<section class="py-section"><div class="container"><div class="row justify-content-center"><div class="col-lg-6">
+<div class="glass-card p-5" id="receipt">
+<div class="text-center mb-4"><h2><span class="brand-gold">S</span>calora</h2><p class="text-muted small">Official Purchase Receipt</p></div>
+<hr>
+<div class="detail-list">
+<div class="detail-row"><span class="detail-key">Receipt #</span><span class="detail-val">{{ order.pk }}</span></div>
+<div class="detail-row"><span class="detail-key">Client</span><span class="detail-val">{{ order.client.get_full_name|default:order.client.username }}</span></div>
+<div class="detail-row"><span class="detail-key">Email</span><span class="detail-val">{{ order.client.email }}</span></div>
+<div class="detail-row"><span class="detail-key">eBook</span><span class="detail-val">{{ order.ebook.title }}</span></div>
+<div class="detail-row"><span class="detail-key">Quantity</span><span class="detail-val">{{ order.quantity }}</span></div>
+<div class="detail-row"><span class="detail-key">Unit Price</span><span class="detail-val">${{ order.ebook.price }}</span></div>
+<div class="detail-row fw-bold"><span class="detail-key">Total</span><span class="detail-val text-gold">${{ order.total_price }}</span></div>
+<div class="detail-row"><span class="detail-key">Status</span><span class="detail-val"><span class="badge status-badge-{{ order.status }}">{{ order.get_status_display }}</span></span></div>
+<div class="detail-row"><span class="detail-key">Date</span><span class="detail-val">{{ order.ordered_at|date:"F j, Y" }}</span></div>
+{% if order.transaction_id %}<div class="detail-row"><span class="detail-key">Transaction ID</span><span class="detail-val">{{ order.transaction_id }}</span></div>{% endif %}
+</div>
+<div class="mt-4 text-center text-muted small">Thank you for your purchase! — Scalora Team</div>
+</div>
+<div class="mt-3 d-flex gap-3 justify-content-center">
+<button onclick="window.print()" class="btn scalora-btn-primary"><i class="bi bi-printer me-2"></i>Print Receipt</button>
+<a href="/dashboard/client/orders/" class="btn scalora-btn-ghost">My Orders</a>
+</div>
+</div></div></div></section>
+{% endblock %}

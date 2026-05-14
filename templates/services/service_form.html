@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} – Scalora{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <h1 class="page-title">{{ title }}</h1>
+    </div>
+</div>
+<section class="py-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="glass-card p-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="scalora-label">Service Name</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="col-12">
+                                <label class="scalora-label">Description</label>
+                                {{ form.description }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="scalora-label">Price ($)</label>
+                                {{ form.price }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="scalora-label">Duration (minutes)</label>
+                                {{ form.duration }}
+                            </div>
+                            <div class="col-12">
+                                <label class="scalora-label">Icon (Bootstrap Icons class)</label>
+                                {{ form.icon }}
+                                <small class="text-muted">e.g. bi-briefcase, bi-graph-up, bi-people</small>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label scalora-label ms-2">Active (visible to clients)</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 d-flex gap-3">
+                            <button type="submit" class="btn scalora-btn-primary">{{ title }}</button>
+                            <a href="/dashboard/admin/services/" class="btn scalora-btn-ghost">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

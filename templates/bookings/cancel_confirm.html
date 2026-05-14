@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Cancel Appointment – Scalora{% endblock %}
+{% block content %}
+<div class="page-header-section">
+    <div class="container"><h1 class="page-title">Cancel <span class="text-gold">Appointment</span></h1></div>
+</div>
+<section class="py-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="glass-card p-5 text-center">
+                    <i class="bi bi-exclamation-triangle text-warning fs-1 mb-3"></i>
+                    <h4>Cancel this appointment?</h4>
+                    <p class="text-muted">{{ appointment.service.name }} on {{ appointment.date|date:"F j, Y" }} at {{ appointment.time_slot|time:"g:i A" }}</p>
+                    <form method="POST" class="mt-4 d-flex gap-3 justify-content-center">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Cancel</button>
+                        <a href="/dashboard/client/bookings/" class="btn scalora-btn-ghost">Keep it</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}{{ blog.title }} – Scalora Blog{% endblock %}
+
+{% block content %}
+<div class="page-header-section">
+    <div class="container">
+        <div class="section-eyebrow">{{ blog.created_at|date:"F j, Y" }}</div>
+        <h1 class="page-title" style="max-width:800px;">{{ blog.title }}</h1>
+        <p class="page-subtitle">By {{ blog.author.get_full_name|default:blog.author.username }}</p>
+    </div>
+</div>
+
+<section class="py-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                {% if blog.image %}
+                <div class="blog-detail-img-wrap mb-5">
+                    <img src="{{ blog.image.url }}" alt="{{ blog.title }}" class="blog-detail-img">
+                </div>
+                {% endif %}
+                <div class="blog-content glass-card p-5">
+                    <div class="blog-content-body">{{ blog.content|linebreaks }}</div>
+                    {% if blog.tags %}
+                    <div class="blog-tags mt-4 pt-4 border-top">
+                        {% for tag in blog.tags.split %}
+                        <span class="blog-tag-pill">{{ tag|cut:"," }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'blogs:list' %}" class="btn scalora-btn-ghost">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Blog
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if related %}
+<section class="py-section pt-0">
+    <div class="container">
+        <h4 class="mb-4">More <span class="text-gold">Articles</span></h4>
+        <div class="row g-4">
+            {% for post in related %}
+            <div class="col-md-4">
+                <div class="blog-card glass-card h-100">
+                    {% if post.image %}<div class="blog-img-wrap"><img src="{{ post.image.url }}" class="blog-img"></div>
+                    {% else %}<div class="blog-img-placeholder"><i class="bi bi-newspaper"></i></div>{% endif %}
+                    <div class="blog-body">
+                        <span class="blog-date">{{ post.created_at|date:"M j, Y" }}</span>
+                        <h6 class="blog-title mt-2">{{ post.title }}</h6>
+                        <a href="{% url 'blogs:detail' post.slug %}" class="blog-read-more">Read <i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
